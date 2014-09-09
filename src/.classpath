@@ -8,9 +8,5 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="lib" path="D:/JavaCourse/SenderService/WebContent/WEB-INF/lib/hibernate-core-4.2.12.Final.jar"/>
-	<classpathentry kind="lib" path="D:/JavaCourse/SenderService/WebContent/WEB-INF/lib/dom4j-1.6.1.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/hibernate"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/spring"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

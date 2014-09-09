@@ -71,7 +71,6 @@ public class FesBes1 implements IFesBes1, IBes1Bes2{
 	bean id="bes1bes2"
 	property name="serviceUrl" value="http://localhost:8080/bes1bes2_service/bes1bes2_service.service"
 	property name="serviceInterface" value="mat.IBes1Bes2" */
-		String[] snName = {"google+"}; //temporary!!!
 		ArrayList<Boolean> slots = (ArrayList<Boolean>) b1b2.getSlots(username, snName, data);
 		mat.Matt newMatt=null;
 		if (slots != null){
@@ -100,11 +99,12 @@ public class FesBes1 implements IFesBes1, IBes1Bes2{
 		
 	@Override
 	public Matt getMatt(String mattName, String username) {
-		
-		Matt mattFromDB = em.find(Matt.class, mattName);	//getters?
+		String strQuery = "Select m from Matt m where m.name='"+mattName+"'";
+		Query query=em.createQuery(strQuery); 				//Query to DB to get Matt with mattName
+		Matt mattFromDB = (Matt) query.getSingleResult(); 	//getters?
 		MattData dataFromDB = mattFromDB.getData(); 		//MattData from DB
-		Matt resMatt = new Matt();
-		String[] snName = {"google+"};//  //temporary!!!
+		
+		String[] snName = {"facebook", "google+", "twitter"};// where we get them from?
 		
 		ArrayList<Boolean> slotsFromSN = getSlots(username, snName, dataFromDB); //getting slots from SN
 		ArrayList<Boolean> slotsFromDB = mattFromDB.getSlots(); //getting slots from DB
@@ -114,9 +114,7 @@ public class FesBes1 implements IFesBes1, IBes1Bes2{
 			result = slotsFromDB.get(i)&slotsFromSN.get(i); //merging slots logical &
 			resSlotsList.add(result);	//adding result slots to the result slots List
 		}
-		resMatt.setData(dataFromDB);
-		resMatt.setSlots(resSlotsList);
-		return resMatt;
+		return new Matt(dataFromDB, resSlotsList);
 	}
 
 	
