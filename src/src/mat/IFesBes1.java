@@ -2,7 +2,7 @@ package mat;
 
 public interface IFesBes1 {
 	int setProfile(mat.Person person);
-	int matLogin(String username, String password);
+	int matLogin(String email, String password);
 	String [] getMattNames(String username);
 	mat.Matt createMatt(mat.MattData data, String username);
 	mat.Matt getMatt(String mattName, String username);

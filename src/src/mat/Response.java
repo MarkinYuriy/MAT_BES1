@@ -1,6 +1,6 @@
 package mat;
 
-public class Response {
+public interface Response {
 	//response for function matLogin
 	static final int IN_ACTIVE=0;
 	static final int NO_PASSWORD_MATCHING=1;

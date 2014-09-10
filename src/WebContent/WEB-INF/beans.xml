@@ -11,5 +11,23 @@
 		<property name="serviceUrl" value="http://localhost:8080/bes1bes2_service/bes1bes2_service.service"/>
 		<property name="serviceInterface" value="mat.IBes1Bes2"/>
 	</bean>
+	
+	<!-- ************ MAIL SENDER *************** -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+    <property name="host" value="smtp.gmail.com"/>
+    <property name="port" value="25"/>
+    <property name="username" value="${username}"/>
+    <property name="password" value="${password}"/>
+    <property name="javaMailProperties">
+      <props>
+          <prop key="mail.smtp.starttls.enable">true</prop>
+          <prop key="mail.debug">false</prop>
+      </props>
+    </property>
+</bean>
+<bean id="sender" class= "mail.SendActivationMail">
+<constructor-arg name="mailsender" ref="mailSender"></constructor-arg>
+<constructor-arg name="template" ref="templateMessage"></constructor-arg>
+</bean>
 
 </beans>
