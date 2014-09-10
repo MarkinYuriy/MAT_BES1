@@ -2,6 +2,7 @@ package model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -39,8 +40,10 @@ public class FesBes1 implements IFesBes1, IBes1Bes2 {
 		if (person != null) {
 			Person currentPrs = em.find(Person.class, person.getEmail()); //currentPrs is a person with considered email from database
 			if (currentPrs == null) {									//currentPrs not exists
+				
+				person.setHashCode(UUID.randomUUID().toString());		//create unique confirmation code for person
 				em.persist(person);  
-				activateProfile(person);								//launch activate mechanism
+				launchActivation(person);								//launch activate mechanism
 				result = Response.OK;
 			} else {													//currentPrs exists, checking activation status
 				if (currentPrs.isActive() == false)
@@ -52,7 +55,7 @@ public class FesBes1 implements IFesBes1, IBes1Bes2 {
 		return result;
 	}
 
-	private void activateProfile(Person person) {
+	private void launchActivation(Person person) {
 		ISendActivationMail sender = (ISendActivationMail) ctx.getBean("sender");
 		sender.sendMail(person);
 	}

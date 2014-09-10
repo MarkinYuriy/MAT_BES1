@@ -14,7 +14,14 @@ public class Person implements Serializable {
 	String email;//the same as username
 	String password;
 	boolean isActive;
+	String hashCode;
 
+	public String getHashCode() {
+		return hashCode;
+	}
+	public void setHashCode(String hashCode) {
+		this.hashCode = hashCode;
+	}
 	public String getFirstName() {
 		return firstName;
 	}
