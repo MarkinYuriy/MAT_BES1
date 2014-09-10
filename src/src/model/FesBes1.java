@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -33,36 +32,23 @@ public class FesBes1 implements IFesBes1, IBes1Bes2{
 	
 	@Override
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRES_NEW)
-	public boolean setProfile(Person person) {
-		boolean result = false;
+	public int setProfile(Person person) {
+		//boolean result = false;
 		if ((person != null) && (em.find(Person.class, person.getUserName()) == null)) {
 			em.persist(person);
-			result = true;
+			//result = true;
 		}
-		return result;
+		return 0; //result;
 	}
 
 	@Override
-	public boolean matLogin(String username, String password) {
-		boolean result = false;
+	public int matLogin(String username, String password) {
+		//boolean result = false;
 		Person prs = em.find(Person.class, username);
-		if ((prs != null) && (prs.getPassword() == password))
-			result = true;
+		//if ((prs != null) && (prs.getPassword() == password))
+			//result = true;
 		
-		return result;
-	}
-
-	@Override
-	public boolean snLogin(String username, String snName) {
-		boolean result = false;
-		IBes1Bes2 bes2 = (IBes1Bes2) ctx.getBean("bes2");
-		Person prs = em.find(Person.class, username);
-		if (prs != null) {
-			List<mat.SocialNetwork> networks = prs.getNetworks();
-			String snUsername = (networks.get(networks.indexOf(snName))).getSnUsername(); // looking for compliance SN - snUsername
-			result = bes2.setIdentity(snUsername, prs.getUserName(), snName);
-		}
-		return result;
+		return 0; //result;
 	}
 
 	@Override
@@ -127,12 +113,6 @@ public class FesBes1 implements IFesBes1, IBes1Bes2{
 	}
 
 	@Override
-	public boolean setIdentity(String snUsername, String matUsername, String snName) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public ArrayList<Boolean> getSlots(String username, String[] snName, MattData interval) {
 		// TODO Auto-generated method stub
 		return null;
@@ -149,5 +129,17 @@ public class FesBes1 implements IFesBes1, IBes1Bes2{
 				result.add(false);
 		}
 		return result;
+	}
+
+	@Override
+	public void setMatCalendar(String username, String[] snNames, List<Matt> matts) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String[] getMattNames(String username) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
