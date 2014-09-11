@@ -182,14 +182,16 @@ public class FesBes1 implements IFesBes1, IBes1Bes2 {
 	}
 
 	@Override
-	public Person getProfile(String username) {
-		// TODO Auto-generated method stub
-		return null;
+	public Person getProfile(String email) {
+		return em.find(Person.class, email);
 	}
 
 	@Override
-	public void setActive(String username) {
-		// TODO Auto-generated method stub
+	public void setActive(String email) {
+		Person prs = em.find(Person.class, email);
+		em.getTransaction().begin();
+		prs.setActive(true);
+		em.getTransaction().commit();
 		
 	}
 }
