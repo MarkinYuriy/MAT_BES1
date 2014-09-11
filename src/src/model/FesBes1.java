@@ -180,4 +180,16 @@ public class FesBes1 implements IFesBes1, IBes1Bes2 {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public Person getProfile(String username) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setActive(String username) {
+		// TODO Auto-generated method stub
+		
+	}
 }
