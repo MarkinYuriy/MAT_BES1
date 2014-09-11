@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -177,8 +178,12 @@ public class FesBes1 implements IFesBes1, IBes1Bes2 {
 
 	@Override
 	public String[] getMattNames(String username) {
-		// TODO Auto-generated method stub
-		return null;
+		String str = "Select m.mattName from MattInfo where m.userName = '"+username+"'";
+		Query query = em.createQuery(str); //sending query
+		ArrayList<String> listOfNames = (ArrayList<String>) query.getResultList();	//getting result list
+		String[] resultArr = new String[listOfNames.size()];	
+		resultArr = listOfNames.toArray(resultArr);
+		return resultArr;
 	}
 
 	@Override
