@@ -18,7 +18,7 @@ public class SendActivationMail implements ISendActivationMail {
 		mailsender.send(template);
 	}
 	private String generateLink(Person prs) {
-		return "http://localhost:8080/activate?hashCode="+prs.getHashCode()+"&user="+prs.getEmail();
+		return "http://localhost:8080/activate?hash="+prs.getHashCode()+"&user="+prs.getEmail();
 	}
 
 }

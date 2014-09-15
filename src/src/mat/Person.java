@@ -10,7 +10,7 @@ public class Person implements Serializable {
 	String firstName;
 	String lastName;
 	//String userName;
-	String[] snNames; 
+	String[] snNames; //list of calendar origins
 	String email;//the same as username
 	String password;
 	boolean isActive;

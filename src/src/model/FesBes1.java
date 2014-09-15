@@ -71,7 +71,7 @@ public class FesBes1 implements IFesBes1, IBes1Bes2 {
 			 if (prs.isActive() == false)			//person found, but not active
 				 result = Response.IN_ACTIVE;
 			 else									//person found and active
-				 if (prs.getPassword()==password)	//password correct
+				 if ((prs.getPassword()).equals(password)==true)	//password correct
 					 result = Response.OK;
 				 else								//password not correct
 					 result = Response.NO_PASSWORD_MATCHING;
@@ -198,5 +198,15 @@ public class FesBes1 implements IFesBes1, IBes1Bes2 {
 		prs.setActive(true);
 		em.getTransaction().commit();
 		
+	}
+
+	@Override
+	public int updateProfile(Person person) {
+		String email = person.getEmail();
+		Person prs = em.find(Person.class, email);
+		em.getTransaction().begin();
+		prs.setSnNames(person.getSnNames());
+		em.getTransaction().commit();
+		return Response.OK;
 	}
 }
