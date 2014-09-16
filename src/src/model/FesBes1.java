@@ -192,6 +192,7 @@ public class FesBes1 implements IFesBes1, IBes1Bes2 {
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public void setActive(String email) {
 		Person prs = em.find(Person.class, email);
 		em.getTransaction().begin();
@@ -201,6 +202,7 @@ public class FesBes1 implements IFesBes1, IBes1Bes2 {
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public int updateProfile(Person person) {
 		String email = person.getEmail();
 		Person prs = em.find(Person.class, email);
