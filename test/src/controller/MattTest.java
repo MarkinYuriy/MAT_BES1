@@ -30,7 +30,7 @@ public class MattTest {
 			mattOld.setSlots(slots);
 			Matt mattNew = createNewMatt(mattOld); 
 		//testing save Matt function
-			String username = "name " + (int)Math.random()*nIterations;
+			String username = "name " + (int)(Math.random()*nIterations);
 			bes1.saveMatt(mattOld, mattNew, username);
 		}
 		
@@ -41,7 +41,7 @@ public class MattTest {
 		mattNew.setData(mattOld.getData());
 		ArrayList<Boolean> newSlots = mattOld.getSlots();
 		for(int i=0; i<nCHANGED_BY_USER; i++){
-			int index =  (int)Math.random()*mattOld.getSlots().size();
+			int index =  (int)(Math.random()*mattOld.getSlots().size());
 			newSlots.set(index, true);
 		}
 		mattNew.setSlots(newSlots);
@@ -53,7 +53,7 @@ public class MattTest {
 		ArrayList<Boolean> slots = new ArrayList<Boolean>(slotsNumber);
 		Collections.fill(slots, false);
 		for(int i=0; i<nTRUE; i++){
-			int index = (int)Math.random()*slotsNumber;
+			int index = (int)(Math.random()*slotsNumber);
 			slots.set(index, true);
 		}
 		return slots;
@@ -61,11 +61,11 @@ public class MattTest {
 
 	public static mat.MattData generateMattData(){
 		String name = "name " + (int)Math.random()*nIterations;
-		int nDays = (int)Math.random()*(nDaysMax-nDaysMin) + nDaysMin;
+		int nDays = (int)(Math.random()*(nDaysMax-nDaysMin)) + nDaysMin;
 		Calendar calendar = GregorianCalendar.getInstance();
-		calendar.add(GregorianCalendar.DATE, (int)Math.random()*(nDaysMax-nDaysMin) + nDaysMin);
-		int startHour = (int)Math.random()*HOURS; //generate number between 0 and 23
-		int duration = (int)Math.random()*(HOURS - startHour);
+		calendar.add(GregorianCalendar.DATE, (int)(Math.random()*(nDaysMax-nDaysMin)) + nDaysMin);
+		int startHour = (int)(Math.random()*HOURS); //generate number between 0 and 23
+		int duration = (int)(Math.random()*(HOURS - startHour));
 		return new mat.MattData(name, nDays, calendar.getTime(), startHour, (startHour+duration), TIME_SLOT, null);
 			
 	}
