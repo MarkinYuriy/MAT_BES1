@@ -21,7 +21,7 @@ import mat.MattData;
 import mat.Person;
 import mat.Response;
 
-public class FesBes1 implements IFesBes1, IBes1Bes2 {
+public class FesBes1 implements IFesBes1 {
 
 	// Constructor???
 	// fields???
@@ -124,7 +124,7 @@ public class FesBes1 implements IFesBes1, IBes1Bes2 {
 		Matt resMatt = new Matt();
 		String[] snName = { "google+" };// //temporary!!!
 
-		ArrayList<Boolean> slotsFromSN = getSlots(username, snName, dataFromDB); // getting
+		ArrayList<Boolean> slotsFromSN = (ArrayList<Boolean>) b1b2.getSlots(username, snName, dataFromDB); // getting
 																					// slots
 																					// from
 																					// SN
@@ -149,13 +149,6 @@ public class FesBes1 implements IFesBes1, IBes1Bes2 {
 		return false;
 	}
 
-	@Override
-	public ArrayList<Boolean> getSlots(String username, String[] snName,
-			MattData interval) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	private ArrayList<Boolean> compareSlotMarks(ArrayList<Boolean> oldSlots,
 			ArrayList<Boolean> newSlots) {
 		int size = oldSlots.size();
@@ -169,12 +162,6 @@ public class FesBes1 implements IFesBes1, IBes1Bes2 {
 		return result;
 	}
 
-	@Override
-	public void setMatCalendar(String username, String[] snNames,
-			List<Matt> matts) {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public String[] getMattNames(String username) {
