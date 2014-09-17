@@ -37,17 +37,16 @@ public class FesBes1 implements IFesBes1 {
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public int setProfile(Person person) {
-		int result = Response.PROFILE_EXISTS_ACTIVE;
+		int result = Response.NO_REGISTRATION;
 		if (person != null) {
-			Person currentPrs = em.find(Person.class, person.getEmail()); //currentPrs is a person with considered email from database
-			if (currentPrs == null) {									//currentPrs not exists
-				
-				person.setHashCode(UUID.randomUUID().toString());		//create unique confirmation code for person
-				em.persist(person);  
-				launchActivation(person);								//launch activate mechanism
+			PersonEntity currentPE = getPEbyEmail(person.getEmail()); //currentPE is a personEntity with considered email from database
+			if (currentPE == null) {									//currentPE not exists
+				currentPE.setHashCode(UUID.randomUUID().toString());		//create unique confirmation code for person
+				em.persist(currentPE);  
+				launchActivation(currentPE);								//launch activate mechanism
 				result = Response.OK;
-			} else {													//currentPrs exists, checking activation status
-				if (currentPrs.isActive() == false)
+			} else {													//currentPE exists, checking activation status
+				if (currentPE.isActive() == false)
 					result = Response.PROFILE_EXISTS_INACTIVE;
 				else
 					result = Response.PROFILE_EXISTS_ACTIVE;
@@ -56,22 +55,28 @@ public class FesBes1 implements IFesBes1 {
 		return result;
 	}
 
-	private void launchActivation(Person person) {
+	private PersonEntity getPEbyEmail(String email) {
+		Query query = em.createQuery("SELECT pe FROM PersonEntity pe WHERE pe.email=?1");
+		query.setParameter(1, email);
+		return (PersonEntity) query.getSingleResult();
+	}
+
+	private void launchActivation(PersonEntity pe) {
 		ISendActivationMail sender = (ISendActivationMail) ctx.getBean("sender");
-		sender.sendMail(person);
+		sender.sendMail(pe);
 	}
 
 	@Override
 	public int matLogin(String email, String password) {
-		Person prs = em.find(Person.class, email); // looking for person in database by email
+		PersonEntity pe = getPEbyEmail(email); // looking for person in database by email
 		int result;
-		 if (prs == null)							//person not found
+		 if (pe == null)							//person not found
 			 result = Response.NO_REGISTRATION;
 		 else
-			 if (prs.isActive() == false)			//person found, but not active
+			 if (pe.isActive() == false)			//person found, but not active
 				 result = Response.IN_ACTIVE;
 			 else									//person found and active
-				 if ((prs.getPassword()).equals(password)==true)	//password correct
+				 if ((pe.getPassword()).equals(password)==true)	//password correct
 					 result = Response.OK;
 				 else								//password not correct
 					 result = Response.NO_PASSWORD_MATCHING;
@@ -181,9 +186,9 @@ public class FesBes1 implements IFesBes1 {
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public void setActive(String email) {
-		Person prs = em.find(Person.class, email);
+		PersonEntity pe = getPEbyEmail(email);
 		em.getTransaction().begin();
-		prs.setActive(true);
+		pe.setActive(true);
 		em.getTransaction().commit();
 		
 	}
@@ -191,11 +196,17 @@ public class FesBes1 implements IFesBes1 {
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public int updateProfile(Person person) {
-		String email = person.getEmail();
-		Person prs = em.find(Person.class, email);
-		em.getTransaction().begin();
-		prs.setSnNames(person.getSnNames());
-		em.getTransaction().commit();
-		return Response.OK;
+		int result = Response.NO_REGISTRATION;
+		if (person != null) {
+			String email = person.getEmail();
+			PersonEntity pe = getPEbyEmail(email);
+			if (pe != null) {
+				em.getTransaction().begin();
+				pe.setSnNames(person.getSnNames());
+				em.getTransaction().commit();
+				result = Response.OK;
+			}
+		}
+		return result;
 	}
 }

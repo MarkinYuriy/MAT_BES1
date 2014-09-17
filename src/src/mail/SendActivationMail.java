@@ -10,15 +10,15 @@ public class SendActivationMail implements ISendActivationMail {
 	SimpleMailMessage template;
 	String link;
 	@Override
-	public void sendMail(Person prs) {
-		link=generateLink(prs);
-		template.setTo(prs.getEmail());
-		String text = "Dear "+prs.getFirstName()+",<br><br>Please follow the link below to activate your account<br>"+link;
+	public void sendMail(model.PersonEntity pe) {
+		link=generateLink(pe);
+		template.setTo(pe.getEmail());
+		String text = "Dear "+pe.getFirstName()+",<br><br>Please follow the link below to activate your account<br>"+link;
 		template.setText(text);
 		mailsender.send(template);
 	}
-	private String generateLink(Person prs) {
-		return "http://localhost:8080/activate?hash="+prs.getHashCode()+"&user="+prs.getEmail();
+	private String generateLink(model.PersonEntity pe) {
+		return "http://localhost:8080/activate?hash="+pe.getHashCode()+"&user="+pe.getEmail();
 	}
 
 }

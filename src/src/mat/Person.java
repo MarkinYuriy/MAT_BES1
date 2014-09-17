@@ -16,6 +16,17 @@ public class Person implements Serializable {
 	boolean isActive;
 	String hashCode;
 
+	public Person(String firstName, String lastName, String[] snNames,
+			String email, String password, boolean isActive, String hashCode) {
+		super();
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.snNames = snNames;
+		this.email = email;
+		this.password = password;
+		this.isActive = isActive;
+		this.hashCode = hashCode;
+	}
 	public String getHashCode() {
 		return hashCode;
 	}
