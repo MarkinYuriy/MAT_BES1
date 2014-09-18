@@ -91,7 +91,7 @@ public class FesBes1 implements IFesBes1 {
 		 * property name="serviceInterface" value="mat.IBes1Bes2"
 		 */
 		String[] snName = { "google+" }; // temporary!!!
-/*		Query query = em.createQuery("select p from Person p where p.email= :username");
+/*		Query query = em.createQuery("select p from Persons p where p.email= :username");
 		query.setParameter("username", username);
 		Person prs=(Person) query.getSingleResult(); //?????? may be changed to getResultList() for more safety.
 		String[] snName = prs.getSnNames();*/
@@ -113,14 +113,27 @@ public class FesBes1 implements IFesBes1 {
 		if(slots != null && !slots.isEmpty() && data!= null){
 			int size = slots.size();
 			int numberOfSlotsPerDay = data.getnDays() * (data.getEndHour()-data.getStartHour());
+			HashMap<Integer, Date> dates=new HashMap<Integer, Date>();
+			Calendar calendar = new GregorianCalendar();
 			for (int i=0; i<size; i++){
-				if(slots.get(i)){
-					int curr = i+1; //because i begins with zero
-					int dayNumber = curr/numberOfSlotsPerDay; //because division returns the number of past days
-					Calendar calendar = new GregorianCalendar();
-					calendar.setTime(data.getStartDate());
-					calendar.add(Calendar.DATE, dayNumber);
-					
+				if(slots.get(i)){ //returns true if slot value is 1 i.e. busy.
+				//	int curr = i+1; //because i begins with zero
+					int dayNumber = i/numberOfSlotsPerDay; //because division returns the number of past days
+				    if(!dates.containsKey(dayNumber)){
+				    	calendar.setTime(data.getStartDate());
+						calendar.add(Calendar.DATE, dayNumber);
+						dates.put(dayNumber, calendar.getTime());
+				    }
+					LinkedList<Integer> slotNums = result.get(calendar.getTime());
+					if (slotNums != null){
+						slotNums.add(i);
+						result.replace(calendar.getTime(), slotNums);
+					}
+					else {
+						slotNums = new LinkedList<Integer>();
+						slotNums.add(i);
+						result.put(calendar.getTime(), slotNums);
+					}				
 					
 				}
 			}
