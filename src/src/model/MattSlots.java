@@ -10,10 +10,6 @@ import javax.persistence.*;
 public class MattSlots {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	int id;
-	@ManyToMany
-	List<SocialNetworkEntity> mattSocialNetworks = new ArrayList<SocialNetworkEntity>();
-
-	
+	int id;	
 
 }

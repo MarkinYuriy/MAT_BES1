@@ -14,7 +14,7 @@ public class PersonEntity {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	int id;
 	@ManyToMany
-	List<SocialNetworkEntity> personSocialNetworks = new ArrayList<SocialNetworkEntity>();
+	List<SocialNetworkEntity> personSocialNetworks;
 	String firstName;
 	String lastName;
 	String[] snNames; //list of calendar origins

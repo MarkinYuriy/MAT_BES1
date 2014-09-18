@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.persistence.*;
 
-@Entity
 public class Person implements Serializable {
 	String firstName;
 	String lastName;

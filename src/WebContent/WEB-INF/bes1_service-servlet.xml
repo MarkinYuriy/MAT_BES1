@@ -1,0 +1,41 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:context="http://www.springframework.org/schema/context"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:tx="http://www.springframework.org/schema/tx"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans-4.0.xsd 
+  http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+  http://www.springframework.org/schema/context 
+   http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+  
+  <context:component-scan base-package="model" />
+<!-- components of the bes1 application service getting result of any query -->
+<bean id="database" class="model.FesBes1" /> <!-- class for books application model -->
+
+<!-- ********** -->
+<!-- Burlap Service Exporter -->
+<bean id="burlapBes1Service" class="org.springframework.remoting.caucho.BurlapServiceExporter">
+<property  name="service" ref="database"></property> <!-- reference to the service -->
+<property name="serviceInterface" value="mat.IFesBes1"></property> <!-- interface of the service -->
+</bean>
+<!-- ********** -->
+<!-- mapping to the application service -->
+<bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+<property name="mappings" value="/bes1_webservice.service=burlapBes1Service"/>
+</bean>
+<!-- Components for the Hibernate -->
+<bean id="emf"
+     class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean">
+  <property name="persistenceUnitName" value="springHibernate" />
+</bean>
+<bean 
+class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" 
+/>
+<tx:annotation-driven transaction-manager="transactionManager"/>
+<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+    <property name="entityManagerFactory" ref="emf"/>
+</bean>
+<!-- ********** -->
+
+ 
+</beans>
