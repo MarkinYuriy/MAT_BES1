@@ -1,19 +1,19 @@
 package model;
 
+import java.io.IOException;
 import java.util.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
-import org.aspectj.apache.bcel.classfile.Signature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import mail.ISendActivationMail;
-import mat.IBes1Bes2;
+import mat.IBackConnector;
 import mat.IFesBes1;
 import mat.Matt;
 import mat.MattData;
@@ -31,7 +31,7 @@ public class FesBes1 implements IFesBes1 {
 	ApplicationContext ctx;
 
 	@Autowired
-	IBes1Bes2 b1b2;
+	IBackConnector iBackCon;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
@@ -83,12 +83,12 @@ public class FesBes1 implements IFesBes1 {
 	}
 
 	@Override
-	public Matt createMatt(MattData data, String username) {
+	public Matt createMatt(MattData data, String username)  {
 		/*
 		 * using service IBes1Bes2, described in file beans.xml bean
 		 * id="bes1bes2" property name="serviceUrl"
 		 * value="http://localhost:8080/bes1bes2_service/bes1bes2_service.service"
-		 * property name="serviceInterface" value="mat.IBes1Bes2"
+		 * property name="serviceInterface" value="mat.IBackConnector"
 		 */
 	//getting list of user Social Networks
 		Query query = em.createQuery("select p from Persons p where p.email= :username");
@@ -98,8 +98,9 @@ public class FesBes1 implements IFesBes1 {
 		List<String> snNames = new LinkedList<String>();
 		for (SocialNetworkEntity sn: snList)
 			snNames.add(sn.getName());
-		ArrayList<Boolean> slots = (ArrayList<Boolean>) b1b2.getSlots(username,
-				snNames.toArray(new String[snNames.size()]), data);
+		ArrayList<Boolean> slots = (ArrayList<Boolean>) iBackCon.getSlots(username,
+					snNames.toArray(new String[snNames.size()]), data);
+		
 	//creating new Matt
 		mat.Matt newMatt = null;
 		if (slots != null) {
@@ -172,7 +173,7 @@ public class FesBes1 implements IFesBes1 {
 		Matt resMatt = new Matt();
 		String[] snName = { "google+" };// //temporary!!!
 
-		ArrayList<Boolean> slotsFromSN = (ArrayList<Boolean>) b1b2.getSlots(username, snName, dataFromDB); // getting
+		ArrayList<Boolean> slotsFromSN = (ArrayList<Boolean>) iBackCon.getSlots(username, snName, dataFromDB); // getting
 																					// slots
 																					// from
 																					// SN

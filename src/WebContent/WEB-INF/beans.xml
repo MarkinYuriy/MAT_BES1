@@ -10,7 +10,7 @@
 	
 	<bean id="bes1bes2" class="org.springframework.remoting.caucho.BurlapProxyFactoryBean">
 		<property name="serviceUrl" value="http://localhost:8080/bes1bes2_service/bes1bes2_service.service"/>
-		<property name="serviceInterface" value="mat.IBes1Bes2"/>
+		<property name="serviceInterface" value="mat.IBackConnector"/>
 	</bean>
 	
 	<!-- ************ MAIL SENDER *************** -->
