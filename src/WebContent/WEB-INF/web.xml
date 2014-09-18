@@ -7,15 +7,15 @@
   </servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
-    <listener>
+  <listener>
     <listener-class>
         org.springframework.web.context.ContextLoaderListener
     </listener-class>
-</listener>
-<context-param>
-<param-name>contextConfigLocation</param-name>
-<param-value>/WEB-INF/beans.xml</param-value>
-</context-param>
+  </listener>
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>/WEB-INF/beans.xml</param-value>
+  </context-param>
   <servlet-mapping>
     <servlet-name>bes1_service</servlet-name>
     <url-pattern>*.service</url-pattern>
