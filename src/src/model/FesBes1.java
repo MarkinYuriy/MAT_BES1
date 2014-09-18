@@ -90,13 +90,17 @@ public class FesBes1 implements IFesBes1 {
 		 * value="http://localhost:8080/bes1bes2_service/bes1bes2_service.service"
 		 * property name="serviceInterface" value="mat.IBes1Bes2"
 		 */
-		String[] snName = { "google+" }; // temporary!!!
-/*		Query query = em.createQuery("select p from Persons p where p.email= :username");
+	//getting list of user Social Networks
+		Query query = em.createQuery("select p from Persons p where p.email= :username");
 		query.setParameter("username", username);
-		Person prs=(Person) query.getSingleResult(); //?????? may be changed to getResultList() for more safety.
-		String[] snName = prs.getSnNames();*/
+		PersonEntity prs=(PersonEntity) query.getSingleResult(); //?????? may be changed to getResultList() for more safety.
+		List<SocialNetworkEntity> snList = prs.getPersonSocialNetworks();
+		List<String> snNames = new LinkedList<String>();
+		for (SocialNetworkEntity sn: snList)
+			snNames.add(sn.getName());
 		ArrayList<Boolean> slots = (ArrayList<Boolean>) b1b2.getSlots(username,
-				snName, data);
+				snNames.toArray(new String[snNames.size()]), data);
+	//creating new Matt
 		mat.Matt newMatt = null;
 		if (slots != null) {
 			newMatt = new mat.Matt();
