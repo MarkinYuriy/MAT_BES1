@@ -194,8 +194,13 @@ public class FesBes1 implements IFesBes1 {
 
 	@Override
 	public boolean removeMatt(String mattName, String username) {
-		// TODO Auto-generated method stub
-		return false;
+		boolean result=false;
+		Matt resMatt = new Matt();
+			resMatt=getMatt(mattName, username);
+			if (resMatt!=null){
+				
+			}
+		return result;
 	}
 
 	private ArrayList<Boolean> compareSlotMarks(ArrayList<Boolean> oldSlots,
