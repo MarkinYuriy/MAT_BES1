@@ -97,7 +97,6 @@ public class FesBes1 implements IFesBes1 {
 		String[] snName = prs.getSnNames();*/
 		ArrayList<Boolean> slots = (ArrayList<Boolean>) b1b2.getSlots(username,
 				snName, data);
-		Map<Date, LinkedList<Integer> > slotNumbersByDate = slotsBoolToMap(slots, data);
 		mat.Matt newMatt = null;
 		if (slots != null) {
 			newMatt = new mat.Matt();
@@ -147,6 +146,7 @@ public class FesBes1 implements IFesBes1 {
 	public boolean saveMatt(Matt mattOld, Matt mattNew, String username) {
 		boolean result = false;
 		if (mattNew != null && mattOld != null && username != null) {
+			Map<Date, LinkedList<Integer> > slotNumsFromSNs = slotsBoolToMap(mattOld.getSlots(), mattNew.getData());
 			mat.Matt forSave = new mat.Matt();
 			forSave.setData(mattNew.getData());
 			forSave.setSlots(compareSlotMarks(mattOld.getSlots(),

@@ -12,6 +12,7 @@ import mat.Person;
 public class PersonEntity {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name="person_id")
 	int id;
 	@ManyToMany
 	List<SocialNetworkEntity> personSocialNetworks;
