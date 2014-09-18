@@ -1,13 +1,12 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.aspectj.apache.bcel.classfile.Signature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Propagation;
@@ -92,8 +91,13 @@ public class FesBes1 implements IFesBes1 {
 		 * property name="serviceInterface" value="mat.IBes1Bes2"
 		 */
 		String[] snName = { "google+" }; // temporary!!!
+/*		Query query = em.createQuery("select p from Persons p where p.email= :username");
+		query.setParameter("username", username);
+		Person prs=(Person) query.getSingleResult(); //?????? may be changed to getResultList() for more safety.
+		String[] snName = prs.getSnNames();*/
 		ArrayList<Boolean> slots = (ArrayList<Boolean>) b1b2.getSlots(username,
 				snName, data);
+		Map<Date, LinkedList<Integer> > slotNumbersByDate = slotsBoolToMap(slots, data);
 		mat.Matt newMatt = null;
 		if (slots != null) {
 			newMatt = new mat.Matt();
@@ -101,6 +105,41 @@ public class FesBes1 implements IFesBes1 {
 			newMatt.setSlots(slots);
 		}
 		return newMatt;
+	}
+
+	private Map<Date, LinkedList<Integer>> slotsBoolToMap (
+			ArrayList<Boolean> slots, MattData data) {
+		Map<Date, LinkedList<Integer> > result = new TreeMap<Date, LinkedList<Integer> >();
+		if(slots != null && !slots.isEmpty() && data!= null){
+			int size = slots.size();
+			int numberOfSlotsPerDay = data.getnDays() * (data.getEndHour()-data.getStartHour());
+			HashMap<Integer, Date> dates=new HashMap<Integer, Date>();
+			Calendar calendar = new GregorianCalendar();
+			for (int i=0; i<size; i++){
+				if(slots.get(i)){ //returns true if slot value is 1 i.e. busy.
+				//	int curr = i+1; //because i begins with zero
+					int dayNumber = i/numberOfSlotsPerDay; //because division returns the number of past days
+				    if(!dates.containsKey(dayNumber)){
+				    	calendar.setTime(data.getStartDate());
+						calendar.add(Calendar.DATE, dayNumber);
+						dates.put(dayNumber, calendar.getTime());
+				    }
+					LinkedList<Integer> slotNums = result.get(calendar.getTime());
+					if (slotNums != null){
+						slotNums.add(i);
+						result.replace(calendar.getTime(), slotNums);
+					}
+					else {
+						slotNums = new LinkedList<Integer>();
+						slotNums.add(i);
+						result.put(calendar.getTime(), slotNums);
+					}				
+					
+				}
+			}
+		}
+		
+		return result;
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
@@ -209,4 +248,6 @@ public class FesBes1 implements IFesBes1 {
 		}
 		return result;
 	}
+	
+	
 }
