@@ -5,17 +5,33 @@ import org.springframework.mail.SimpleMailMessage;
 
 import mat.Person;
 
-public class SendActivationMail implements ISendActivationMail {
-	MailSender mailsender;
+public class SendActivationMail extends SendAnyMail {
+	MailSender msender;
 	SimpleMailMessage template;
-	String link;
+	
+	public SendActivationMail() {}
+	
+	public SendActivationMail(int id) {
+		super(id);
+	}
+	
+
+
+	public void setMsender(MailSender msender) {
+		this.msender = msender;
+	}
+
+	public void setTemplate(SimpleMailMessage template) {
+		this.template = template;
+	}
+
 	@Override
 	public void sendMail(model.PersonEntity pe) {
-		link=generateLink(pe);
+		String link=generateLink(pe);
 		template.setTo(pe.getEmail());
 		String text = "Dear "+pe.getFirstName()+",<br><br>Please follow the link below to activate your account<br>"+link;
 		template.setText(text);
-		mailsender.send(template);
+		msender.send(template);
 	}
 	private String generateLink(model.PersonEntity pe) {
 		return "http://localhost:8080/activate?hash="+pe.getHashCode()+"&user="+pe.getEmail();
