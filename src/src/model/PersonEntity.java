@@ -16,23 +16,23 @@ public class PersonEntity {
 	int id;
 	@ManyToMany
 	List<SocialNetworkEntity> personSocialNetworks;
-	String firstName;
-	String lastName;
-	String[] snNames; //list of calendar origins
+	String name;
 	String email;//the same as username
 	String password;
 	boolean isActive;
 	String hashCode;
 
-public PersonEntity(mat.Person person){
-	this.firstName = person.getFirstName();
-	this.lastName = person.getLastName();
-	this.snNames = person.getSnNames();
-	this.email = person.getEmail();
-	this.password = person.getPassword();
-	this.isActive = person.isActive();
-	this.hashCode = person.getHashCode();
-}
+	public PersonEntity(mat.Person person){
+		personSocialNetworks = new ArrayList<SocialNetworkEntity>();
+		for (int i=0; i<person.getSnNames().length; i++){
+			SocialNetworkEntity sne = new SocialNetworkEntity(person.getSnNames()[i]);
+			personSocialNetworks.add(sne);
+		}
+		this.name = person.getName();
+		this.email = person.getEmail();
+		this.password = person.getPassword();
+		this.isActive = false;
+	}
 public PersonEntity(){}
 
 public int getId() {
@@ -44,24 +44,6 @@ public List<SocialNetworkEntity> getPersonSocialNetworks() {
 public void setPersonSocialNetworks(
 		List<SocialNetworkEntity> personSocialNetworks) {
 	this.personSocialNetworks = personSocialNetworks;
-}
-public String getFirstName() {
-	return firstName;
-}
-public void setFirstName(String firstName) {
-	this.firstName = firstName;
-}
-public String getLastName() {
-	return lastName;
-}
-public void setLastName(String lastName) {
-	this.lastName = lastName;
-}
-public String[] getSnNames() {
-	return snNames;
-}
-public void setSnNames(String[] snNames) {
-	this.snNames = snNames;
 }
 public String getEmail() {
 	return email;
@@ -88,6 +70,15 @@ public void setHashCode(String hashCode) {
 	this.hashCode = hashCode;
 }
 public Person toPerson(){
-	return new Person(firstName, lastName, snNames, email, password, isActive, hashCode);
+	String [] snNames = new String[personSocialNetworks.size()];
+	for (int i=0; i<snNames.length; i++)
+		snNames[i] = personSocialNetworks.get(i).getName();
+	return new Person(name, snNames, email, password);
+}
+public String getName() {
+	return name;
+}
+public void setName(String name) {
+	this.name = name;
 }
 }

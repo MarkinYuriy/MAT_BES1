@@ -11,7 +11,7 @@ public class MattInfoEntity {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "matt_id")
 	int id;
-	@ManyToOne
+	@ManyToOne(targetEntity = PersonEntity.class)
 	@JoinColumn(name = "person_id")
 	int person_id;
 	

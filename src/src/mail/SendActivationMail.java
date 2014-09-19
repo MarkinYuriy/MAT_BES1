@@ -29,7 +29,7 @@ public class SendActivationMail extends SendAnyMail {
 	public void sendMail(model.PersonEntity pe) {
 		String link=generateLink(pe);
 		template.setTo(pe.getEmail());
-		String text = "Dear "+pe.getFirstName()+",<br><br>Please follow the link below to activate your account<br>"+link;
+		String text = "Dear "+pe.getName()+",<br><br>Please follow the link below to activate your account<br>"+link;
 		template.setText(text);
 		msender.send(template);
 	}

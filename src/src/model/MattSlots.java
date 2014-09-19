@@ -12,7 +12,7 @@ public class MattSlots {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	int id;	
-	@ManyToOne
+	@ManyToOne(targetEntity = MattInfoEntity.class)
 	@JoinColumn(name = "matt_id")
 	int matt_id;
 	

@@ -11,6 +11,10 @@ public class SocialNetworkEntity {
 	int id;	
 	String name;
 	
+	public SocialNetworkEntity(String name) {
+		super();
+		this.name = name;
+	}
 	public int getId() {return id;}
 	public String getName() {return name;}
 	

@@ -36,7 +36,7 @@ public class FesBes1 implements IFesBes1 {
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public int setProfile(Person person) {
-		int result = Response.NO_REGISTRATION;
+		int result = Response.UNKNOWN;
 		if (person != null) {
 			PersonEntity currentPE = getPEbyEmail(person.getEmail()); //currentPE is a personEntity with considered email from database
 			if (currentPE == null) {									//currentPE not exists
@@ -55,9 +55,14 @@ public class FesBes1 implements IFesBes1 {
 	}
 
 	private PersonEntity getPEbyEmail(String email) {
-		Query query = em.createQuery("SELECT pe FROM PersonEntity pe WHERE pe.email=?1");
-		query.setParameter(1, email);
-		return (PersonEntity) query.getSingleResult();
+		PersonEntity result = null;
+		try {
+			Query query = em.createQuery("SELECT pe FROM PersonEntity pe WHERE pe.email=?1");
+			query.setParameter(1, email);
+			result = (PersonEntity) query.getSingleResult();
+		} catch (Exception e) {
+		}
+		return result;
 	}
 
 	private void launchActivation(PersonEntity pe) {
@@ -98,8 +103,15 @@ public class FesBes1 implements IFesBes1 {
 		List<String> snNames = new LinkedList<String>();
 		for (SocialNetworkEntity sn: snList)
 			snNames.add(sn.getName());
-		ArrayList<Boolean> slots = (ArrayList<Boolean>) iBackCon.getSlots(username,
-					snNames.toArray(new String[snNames.size()]), data);
+		ArrayList<Boolean> slots=null;
+		
+		try {
+			slots = (ArrayList<Boolean>) iBackCon.getSlots(username,
+						snNames.toArray(new String[snNames.size()]), data);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	//creating new Matt
 		mat.Matt newMatt = null;
@@ -172,8 +184,13 @@ public class FesBes1 implements IFesBes1 {
 		MattData dataFromDB = mattFromDB.getData(); // MattData from DB
 		Matt resMatt = new Matt();
 		String[] snName = { "google+" };// //temporary!!!
-
-		ArrayList<Boolean> slotsFromSN = (ArrayList<Boolean>) iBackCon.getSlots(username, snName, dataFromDB); // getting
+		ArrayList<Boolean> slotsFromSN = null;
+		try {
+			slotsFromSN = (ArrayList<Boolean>) iBackCon.getSlots(username, snName, dataFromDB);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} // getting
 																					// slots
 																					// from
 																					// SN
@@ -245,13 +262,19 @@ public class FesBes1 implements IFesBes1 {
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public int updateProfile(Person person) {
-		int result = Response.NO_REGISTRATION;
+		int result = Response.UNKNOWN;
 		if (person != null) {
 			String email = person.getEmail();
 			PersonEntity pe = getPEbyEmail(email);
+			result = Response.NO_REGISTRATION;
 			if (pe != null) {
 				em.getTransaction().begin();
-				pe.setSnNames(person.getSnNames());
+				List<SocialNetworkEntity> personSocialNetworks = new ArrayList<SocialNetworkEntity>();
+				for (int i=0; i<person.getSnNames().length; i++){
+					SocialNetworkEntity sne = new SocialNetworkEntity(person.getSnNames()[i]);
+					personSocialNetworks.add(sne);
+				}
+				pe.setPersonSocialNetworks(personSocialNetworks);
 				em.getTransaction().commit();
 				result = Response.OK;
 			}
