@@ -10,7 +10,7 @@ import mat.Matt;
 import mat.MattData;
 
 public class MattTest {
-	private static final int nIterations = 100;
+	private static final int nIterations = 2;
 	private static final int nDaysMax = 10;
 	private static final int nDaysMin = 1;
 	private static final int HOURS = 24;
@@ -21,18 +21,27 @@ public class MattTest {
 	public static void main(String[] args) {
 		AbstractApplicationContext ctx = new FileSystemXmlApplicationContext("beans.xml");
 		IFesBes1 bes1=(IFesBes1) ctx.getBean("ifesbes1");
-	//generating random Matt's, invoking tested functions
-		for (int i=0; i<nIterations; i++){
-			mat.MattData mData = generateMattData();	//randomly generating MattData
-			ArrayList<Boolean> slots = generateSlots(mData);	//generating slots
-			mat.Matt mattOld = new mat.Matt();	//creating Matt
-			mattOld.setData(mData);
-			mattOld.setSlots(slots);
-			Matt mattNew = createNewMatt(mattOld); 
-		//testing save Matt function
-			String username = "name " + (int)(Math.random()*nIterations);
-			bes1.saveMatt(mattOld, mattNew, username);
-		}
+		//testAlexandra(bes1);
+		
+		
+	}
+	
+	private static void testAlexandra(IFesBes1 bes1){
+		//generating random Matt's, invoking tested functions
+				for (int i=0; i<nIterations; i++){
+					mat.MattData mData = generateMattData();	//randomly generating MattData
+					ArrayList<Boolean> slots = generateSlots(mData);	//generating slots
+					mat.Matt mattOld = new mat.Matt();	//creating Matt
+					mattOld.setData(mData);
+					mattOld.setSlots(slots);
+					Matt mattNew = createNewMatt(mattOld); 
+				//testing save Matt function
+					String username = "name " + (int)(Math.random()*nIterations);
+					bes1.saveMatt(mattOld, mattNew, username);
+				}
+	}
+	
+	private static void testAnatoly(IFesBes1 bes1){
 		
 	}
 	

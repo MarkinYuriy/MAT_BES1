@@ -42,4 +42,15 @@ public int getTimeSlot() {
 public String getPassword() {
 	return password;
 }
+public String mattDataToJSON() {
+	 return "{"+
+	   '"'+"name"+'"'+":"+'"'+name+'"'+','+
+	   '"'+"nDays"+'"'+':'+nDays+','+
+	   '"'+"startDate"+'"'+':'+'"'+startDate+'"'+','+
+	   '"'+"startHour"+'"'+':'+'"'+startHour+'"'+','+
+	   '"'+"endHour"+'"'+':'+'"'+endHour+'"'+','+
+	   '"'+"timeSlot"+'"'+':'+timeSlot+','+
+	   '"'+"password"+'"'+':'+'"'+password+'"'+
+	   "}";
+	 }
 }
