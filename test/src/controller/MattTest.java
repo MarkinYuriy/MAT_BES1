@@ -18,7 +18,7 @@ public class MattTest {
 	private static final int TIME_SLOT = 60; //minutes
 	private static final int nTRUE = 5;	//create nTRUE busy slots 
 	private static final int nCHANGED_BY_USER = 3;
-	private static final int nPersons = 2;
+	private static final int nPersons = 1;
 	private static final int nNames = 1000;
 	private static final String[] networks = {"google","facebook","apple","vk"};
 
@@ -86,7 +86,7 @@ public class MattTest {
 			
 	}
 	public static mat.Person generatePerson(){
-		int number = (int)(Math.random())*nNames;
+		int number = (int)(Math.random()*nNames);
 		String name = "name"+number;
 		String email = "email"+number+"@gmail.com";
 		String password = "password"+number;

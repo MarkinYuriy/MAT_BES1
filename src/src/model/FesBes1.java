@@ -5,6 +5,7 @@ import java.util.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContextType;
 import javax.persistence.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class FesBes1 implements IFesBes1 {
 
 	// Constructor???
 	// fields???
-	@PersistenceContext(unitName = "springHibernate")
+	@PersistenceContext(unitName = "springHibernate", type = PersistenceContextType.EXTENDED)
 	EntityManager em;
 
 	@Autowired
@@ -40,6 +41,7 @@ public class FesBes1 implements IFesBes1 {
 		if (person != null) {
 			PersonEntity currentPE = getPEbyEmail(person.getEmail()); //currentPE is a personEntity with considered email from database
 			if (currentPE == null) {									//currentPE not exists
+				currentPE = new PersonEntity(person);
 				currentPE.setHashCode(UUID.randomUUID().toString());		//create unique confirmation code for person
 				em.persist(currentPE);  
 				launchActivation(currentPE);								//launch activate mechanism

@@ -14,7 +14,7 @@ public class PersonEntity {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="person_id")
 	int id;
-	@ManyToMany
+	@ManyToMany(cascade = {CascadeType.ALL})
 	List<SocialNetworkEntity> personSocialNetworks;
 	String name;
 	String email;//the same as username
