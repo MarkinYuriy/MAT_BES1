@@ -4,6 +4,11 @@
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans
    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd ">
-<bean id="ifesbes1" class="mat.FesBes1" />
+
+<!-- ***RMI connection with fesbes1*** -->
+<bean id="ifesbes1" class="org.springframework.remoting.caucho.BurlapProxyFactoryBean">
+<property name="serviceUrl" value="http://localhost:8080/MAT_BES1/bes1_webservice.service"></property>
+<property name="serviceInterface" value="mat.IFesBes1"></property>
+</bean>
 
 </beans>

@@ -8,25 +8,29 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import mat.IFesBes1;
 import mat.Matt;
 import mat.MattData;
+import mat.Person;
 
 public class MattTest {
-	private static final int nIterations = 2;
+	private static final int nIterations = 100;
 	private static final int nDaysMax = 10;
 	private static final int nDaysMin = 1;
 	private static final int HOURS = 24;
 	private static final int TIME_SLOT = 60; //minutes
 	private static final int nTRUE = 5;	//create nTRUE busy slots 
-	private static final int nCHANGED_BY_USER = 3;	 
+	private static final int nCHANGED_BY_USER = 3;
+	private static final int nPersons = 2;
+	private static final int nNames = 1000;
+	private static final String[] networks = {"google","facebook","apple","vk"};
 
 	public static void main(String[] args) {
 		AbstractApplicationContext ctx = new FileSystemXmlApplicationContext("beans.xml");
 		IFesBes1 bes1=(IFesBes1) ctx.getBean("ifesbes1");
 		//testAlexandra(bes1);
-		
+		testAnatoly(bes1);
 		
 	}
 	
-	private static void testAlexandra(IFesBes1 bes1){
+	public static void testAlexandra(IFesBes1 bes1){
 		//generating random Matt's, invoking tested functions
 				for (int i=0; i<nIterations; i++){
 					mat.MattData mData = generateMattData();	//randomly generating MattData
@@ -41,8 +45,11 @@ public class MattTest {
 				}
 	}
 	
-	private static void testAnatoly(IFesBes1 bes1){
-		
+	public static void testAnatoly(IFesBes1 bes1){
+		for (int i=0; i<nPersons; i++){
+			Person prs = generatePerson();
+			bes1.setProfile(prs);
+		}
 	}
 	
 	private static Matt createNewMatt(Matt mattOld) {
@@ -78,5 +85,16 @@ public class MattTest {
 		return new mat.MattData(name, nDays, calendar.getTime(), startHour, (startHour+duration), TIME_SLOT, null);
 			
 	}
-
+	public static mat.Person generatePerson(){
+		int number = (int)(Math.random())*nNames;
+		String name = "name"+number;
+		String email = "email"+number+"@gmail.com";
+		String password = "password"+number;
+		int snNumber = (int)(Math.random()*networks.length);
+		String[] snNames = new String [snNumber];
+		for (int i=0; i<snNumber; i++){
+			snNames[i] = networks[i];
+		}
+		return new Person(name, snNames, email, password);
+	}
 }
