@@ -14,7 +14,6 @@ import mail.ISendActivationMail;
 import mat.*;
 
 public class FesBes1 implements IFesBes1 {
-
 	// Constructor???
 	// fields???
 	@PersistenceContext(unitName = "springHibernate", type = PersistenceContextType.EXTENDED)
