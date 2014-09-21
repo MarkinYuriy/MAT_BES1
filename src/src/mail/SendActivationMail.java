@@ -3,8 +3,6 @@ package mail;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 
-import mat.Person;
-
 public class SendActivationMail extends SendAnyMail {
 	MailSender msender;
 	SimpleMailMessage template;

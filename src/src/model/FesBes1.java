@@ -3,10 +3,7 @@ package model;
 import java.io.IOException;
 import java.util.*;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
-import javax.persistence.Query;
+import javax.persistence.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -14,12 +11,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import mail.ISendActivationMail;
-import mat.IBackConnector;
-import mat.IFesBes1;
-import mat.Matt;
-import mat.MattData;
-import mat.Person;
-import mat.Response;
+import mat.*;
 
 public class FesBes1 implements IFesBes1 {
 
