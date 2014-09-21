@@ -246,10 +246,7 @@ public class FesBes1 implements IFesBes1 {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public void setActive(String email) {
 		PersonEntity pe = getPEbyEmail(email);
-		em.getTransaction().begin();
 		pe.setActive(true);
-		em.getTransaction().commit();
-		
 	}
 
 	@Override
@@ -261,14 +258,12 @@ public class FesBes1 implements IFesBes1 {
 			PersonEntity pe = getPEbyEmail(email);
 			result = Response.NO_REGISTRATION;
 			if (pe != null) {
-				em.getTransaction().begin();
 				List<SocialNetworkEntity> personSocialNetworks = new ArrayList<SocialNetworkEntity>();
 				for (int i=0; i<person.getSnNames().length; i++){
 					SocialNetworkEntity sne = new SocialNetworkEntity(person.getSnNames()[i]);
 					personSocialNetworks.add(sne);
 				}
 				pe.setPersonSocialNetworks(personSocialNetworks);
-				em.getTransaction().commit();
 				result = Response.OK;
 			}
 		}

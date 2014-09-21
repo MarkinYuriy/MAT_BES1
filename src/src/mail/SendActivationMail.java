@@ -26,8 +26,9 @@ public class SendActivationMail extends SendAnyMail {
 	@Override
 	public void sendMail(model.PersonEntity pe) {
 		String link=generateLink(pe);
-		template.setTo(pe.getEmail());
-		String text = "Dear "+pe.getName()+",<br><br>Please follow the link below to activate your account<br>"+link;
+		//template.setTo(pe.getEmail());
+		template.setTo("anatoly.tihonov@gmail.com");
+		String text = "Dear "+pe.getName()+", Please follow the link below to activate your account: "+link;
 		template.setText(text);
 		msender.send(template);
 	}
