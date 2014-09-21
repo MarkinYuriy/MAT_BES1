@@ -218,10 +218,10 @@ public class FesBes1 implements IFesBes1 {
 		int size = oldSlots.size();
 		ArrayList<Boolean> result = new ArrayList<Boolean>();
 		for (int i = 0; i < size; i++) {
-			if (oldSlots.get(i) != newSlots.get(i))
-				result.add(true);
-			else
+			if (oldSlots.get(i) && newSlots.get(i)) //building new slots array with user-marked intervals.
 				result.add(false);
+			else
+				result.add(true);
 		}
 		return result;
 	}
