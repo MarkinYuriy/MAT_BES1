@@ -88,23 +88,9 @@ public class FesBes1 implements IFesBes1 {
 		 * value="http://localhost:8080/bes1bes2_service/bes1bes2_service.service"
 		 * property name="serviceInterface" value="mat.IBackConnector"
 		 */
-	//getting list of user Social Networks
-		Query query = em.createQuery("select p from Persons p where p.email= :username");
-		query.setParameter("username", username);
-		PersonEntity prs=(PersonEntity) query.getSingleResult(); //?????? may be changed to getResultList() for more safety.
-		List<SocialNetworkEntity> snList = prs.getPersonSocialNetworks();
-		List<String> snNames = new LinkedList<String>();
-		for (SocialNetworkEntity sn: snList)
-			snNames.add(sn.getName());
-		ArrayList<Boolean> slots=null;
-		
-		try {
-			slots = (ArrayList<Boolean>) iBackCon.getSlots(username,
-						snNames.toArray(new String[snNames.size()]), data);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	/*getting list of user Social Networks, 
+	  invoking getSlots() function to get Boolean ArrayList of free/busy intervals.*/
+		ArrayList<Boolean> slots= getSlotsFromSN(data, username);
 		
 	//creating new Matt
 		mat.Matt newMatt = null;
@@ -114,6 +100,30 @@ public class FesBes1 implements IFesBes1 {
 			newMatt.setSlots(slots);
 		}
 		return newMatt;
+	}
+	
+	/* getting list of user Social Networks, 
+	   invoking getSlots() function to get Boolean ArrayList of free/busy intervals.*/
+	private ArrayList<Boolean> getSlotsFromSN(MattData data, String username) {
+		ArrayList<Boolean> slots=null;
+	//get the list of SN for the user
+		Query query = em.createQuery("select p from Persons p where p.email= :username");
+		query.setParameter("username", username);
+		PersonEntity prs=(PersonEntity) query.getSingleResult(); //?????? may be changed to getResultList() for more safety.
+		List<SocialNetworkEntity> snList = prs.getPersonSocialNetworks();
+		
+	//if user have no selected SN building slots array with all false (i.e. free time intervals)
+		if(snList == null || snList.isEmpty()){
+			int slotsNumber = data.getnDays() * (data.getEndHour() - data.getStartHour())*(data.getTimeSlot()/60); //60 - minutes in an hour.
+			slots = new ArrayList<Boolean>(Collections.nCopies(slotsNumber, false));
+		}
+		else { //getting slots from SN networks
+			List<String> snNames = new LinkedList<String>();
+			for (SocialNetworkEntity sn: snList)
+				snNames.add(sn.getName());
+			slots = (ArrayList<Boolean>)iBackCon.getSlots(username, snNames.toArray(new String[snNames.size()]), data);
+					}
+		return slots;
 	}
 
 	private Map<Date, LinkedList<Integer>> slotsBoolToMap (
