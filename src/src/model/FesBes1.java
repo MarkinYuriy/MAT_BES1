@@ -249,17 +249,16 @@ public class FesBes1 implements IFesBes1 {
 
 	@Override
 	public Person getProfile(String email) {
-		return em.find(Person.class, email);
+		PersonEntity pe = getPEbyEmail(email);
+		return pe.toPerson();
 	}
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-	public void setActive(String email) {
+	public void setActive(String email, String hashcode) {
 		PersonEntity pe = getPEbyEmail(email);
-		em.getTransaction().begin();
-		pe.setActive(true);
-		em.getTransaction().commit();
-		
+		if (pe.getHashCode()==hashcode)
+			pe.setActive(true);
 	}
 
 	@Override
@@ -271,14 +270,12 @@ public class FesBes1 implements IFesBes1 {
 			PersonEntity pe = getPEbyEmail(email);
 			result = Response.NO_REGISTRATION;
 			if (pe != null) {
-				em.getTransaction().begin();
 				List<SocialNetworkEntity> personSocialNetworks = new ArrayList<SocialNetworkEntity>();
 				for (int i=0; i<person.getSnNames().length; i++){
 					SocialNetworkEntity sne = new SocialNetworkEntity(person.getSnNames()[i]);
 					personSocialNetworks.add(sne);
 				}
 				pe.setPersonSocialNetworks(personSocialNetworks);
-				em.getTransaction().commit();
 				result = Response.OK;
 			}
 		}
