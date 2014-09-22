@@ -239,14 +239,16 @@ public class FesBes1 implements IFesBes1 {
 
 	@Override
 	public Person getProfile(String email) {
-		return em.find(Person.class, email);
+		PersonEntity pe = getPEbyEmail(email);
+		return pe.toPerson();
 	}
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-	public void setActive(String email) {
+	public void setActive(String email, String hashcode) {
 		PersonEntity pe = getPEbyEmail(email);
-		pe.setActive(true);
+		if (pe.getHashCode()==hashcode)
+			pe.setActive(true);
 	}
 
 	@Override
