@@ -121,7 +121,13 @@ public class FesBes1 implements IFesBes1 {
 			List<String> snNames = new LinkedList<String>();
 			for (SocialNetworkEntity sn: snList)
 				snNames.add(sn.getName());
-			slots = (ArrayList<Boolean>)iBackCon.getSlots(username, snNames.toArray(new String[snNames.size()]), data);
+			//TODO remove try-catch
+			try {
+				slots = (ArrayList<Boolean>)iBackCon.getSlots(username, snNames.toArray(new String[snNames.size()]), data);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 					}
 		return slots;
 	}
