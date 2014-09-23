@@ -267,7 +267,7 @@ public class FesBes1 implements IFesBes1 {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public void setActive(String email, String hashcode) {
 		PersonEntity pe = getPEbyEmail(email);
-		if (pe.getHashCode()==hashcode)
+		if (pe.getHashCode().equals(hashcode))
 			pe.setActive(true);
 	}
 
