@@ -222,9 +222,13 @@ public class FesBes1 implements IFesBes1 {
 	public boolean removeMatt(String mattName, String username) {
 		boolean result=false;
 		Matt resMatt = new Matt();
+			
 			resMatt=getMatt(mattName, username);
 			if (resMatt!=null){
-				
+				Query query_delete=em.createQuery("DELETE FROM Matt WHERE x.mattName=?1 and x.mattName=?2");
+				query_delete.setParameter(1, mattName);
+				query_delete.setParameter(2, username);
+				result=true;
 			}
 		return result;
 	}
