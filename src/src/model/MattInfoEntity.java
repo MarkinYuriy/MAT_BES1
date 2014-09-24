@@ -40,6 +40,42 @@ public class MattInfoEntity {
 	}
 
 	public MattInfoEntity() {}
+
+	public int getMatt_id() {
+		return matt_id;
+	}
+
+	public int getPerson_id() {
+		return person_id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public int getnDays() {
+		return nDays;
+	}
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public int getStartHour() {
+		return startHour;
+	}
+
+	public int getEndHour() {
+		return endHour;
+	}
+
+	public int getTimeSlot() {
+		return timeSlot;
+	}
 	
 	
 	

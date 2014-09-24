@@ -185,35 +185,40 @@ public class FesBes1 implements IFesBes1 {
 		}
 		return result;
 	}
-
+	/*getting Persons Id*/
+	private int getPersonId(String username){ 
+		Query query = em.createQuery("select p.id from Persons p where p.email= :username"); 
+		query.setParameter("username", username);
+		PersonEntity prs=(PersonEntity) query.getSingleResult(); //	Getting person from DB
+		return prs.getId();
+	}
+	
+	
+	
+	
 	@Override
 	public Matt getMatt(String mattName, String username) {
-
-		Matt mattFromDB = em.find(Matt.class, mattName); // getters?
-		MattData dataFromDB = mattFromDB.getData(); // MattData from DB
 		Matt resMatt = new Matt();
-		String[] snName = { "google+" };// //temporary!!!
-		ArrayList<Boolean> slotsFromSN = null;
-		try {
-			slotsFromSN = (ArrayList<Boolean>) iBackCon.getSlots(username, snName, dataFromDB);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} // getting
-																					// slots
-																					// from
-																					// SN
-		ArrayList<Boolean> slotsFromDB = mattFromDB.getSlots(); // getting slots
-																// from DB
+		int personId = getPersonId(username);
+		Query query = em.createQuery("select m from MattInfoEntity m where p.id= :personId and p.matt_name= :name"); 
+		query.setParameter("personId", personId);
+		query.setParameter("name", mattName);
+		MattInfoEntity entity = (MattInfoEntity) query.getSingleResult();
+		MattData mattData = new MattData(entity.getName(), entity.getnDays(), entity.getStartDate(), 
+				entity.getStartHour(), entity.getEndHour(), entity.getTimeSlot(), entity.getPassword());
+		
+		ArrayList<Boolean> slotsFromSn=getSlotsFromSN(mattData, username);
+		ArrayList<Boolean> slotsFromDB=getSlotsFromDB(mattName, entity.getMatt_id()); //From Sasha
+		
+			
 		ArrayList<Boolean> resSlotsList = null;
 		boolean result; // result variable for merging slots
 		for (int i = 0; i < slotsFromDB.size(); i++) {
-			result = slotsFromDB.get(i) & slotsFromSN.get(i); // merging slots
-																// logical &
+			result = slotsFromDB.get(i) || slotsFromSn.get(i); // merging slots
 			resSlotsList.add(result); // adding result slots to the result slots
-										// List
+									
 		}
-		resMatt.setData(dataFromDB);
+		resMatt.setData(mattData);
 		resMatt.setSlots(resSlotsList);
 		return resMatt;
 	}
