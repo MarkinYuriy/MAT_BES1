@@ -1,6 +1,7 @@
 package model;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.*;
 
@@ -14,6 +15,9 @@ public class MattInfoEntity {
 	@ManyToOne(targetEntity = PersonEntity.class)
 	@JoinColumn(name = "person_id")
 	int person_id;
+	
+	@OneToMany(mappedBy = "mattInfo", cascade = CascadeType.ALL)
+	List<MattSlots> slots;
 	
 //duplicated fields from MattData class
 	@Column (name="matt_name")
