@@ -172,16 +172,36 @@ public class FesBes1 implements IFesBes1 {
 	public boolean saveMatt(Matt mattOld, Matt mattNew, String username) {
 		boolean result = false;
 		if (mattNew != null && mattOld != null && username != null) {
-			Map<Date, LinkedList<Integer> > slotNumsFromSNs = slotsBoolToMap(mattOld.getSlots(), mattNew.getData());
-			mat.Matt forSave = new mat.Matt();
-			forSave.setData(mattNew.getData());
-			forSave.setSlots(compareSlotMarks(mattOld.getSlots(),
-					mattNew.getSlots()));
-			// if(em.find(mat.Matt.class, forSave.data.name + "_" + username) ==
-			// null){
-			em.persist(forSave);
-			result = true;
-			// }
+		//determine which slots were selected by user, rearrange the slots into Map<Date, slot_num>  
+			ArrayList<Boolean> user_slots = compareSlotMarks(mattOld.getSlots(), mattNew.getSlots());
+			Map<Date, LinkedList<Integer> > boolSlots_toSlotNums = slotsBoolToMap(user_slots, mattNew.getData()); 
+		//checking if the user have no matt with the same name as newMatt
+			//determine person_id by username
+			Query query = em.createQuery("select p.person_id from Persons p where p.email= :username");
+			/*query = em.createQuery("select m from MattsInfo m join m.person_id p "
+					+ "where m.matt_name = :mattName and p.email= :username");*/
+			query.setParameter("username", username);
+			int prs_id = (int) query.getSingleResult();
+			query = em.createQuery("select m from MattsInfo m "
+					+ "where m.matt_name = :mattName and m.person_id= :person_id");
+			query.setParameter("mattName", mattNew.getData().getName());
+			query.setParameter("person_id", prs_id);
+			List<MattInfoEntity> matt_with_theSame_name= query.getResultList();
+		//saving to DB if newMatt name unique for the user
+			if (matt_with_theSame_name == null || matt_with_theSame_name.isEmpty()){
+				MattData data = mattNew.getData();
+				MattInfoEntity mattInfo = new MattInfoEntity(prs_id, data.getName(), data.getPassword(), 
+						data.getnDays(), data.getStartDate(), data.getStartHour(), 
+						data.getEndHour(), data.getTimeSlot());
+				em.persist(mattInfo);
+				if (!boolSlots_toSlotNums.isEmpty()){ //Map isEmpty if no user selection
+					for(Map.Entry<Date, LinkedList<Integer>> entry: boolSlots_toSlotNums.entrySet()){
+						MattSlots mattSlots = new MattSlots(entry.getKey(), entry.getValue());
+					}
+				}
+				result = true;
+			}
+				
 		}
 		return result;
 	}
