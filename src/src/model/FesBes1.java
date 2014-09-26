@@ -14,8 +14,7 @@ import mail.ISendActivationMail;
 import mat.*;
 
 public class FesBes1 implements IFesBes1 {
-	// Constructor???
-	// fields???
+	
 	@PersistenceContext(unitName = "springHibernate", type = PersistenceContextType.EXTENDED)
 	EntityManager em;
 
@@ -47,21 +46,7 @@ public class FesBes1 implements IFesBes1 {
 		return result;
 	}
 
-	private PersonEntity getPEbyEmail(String email) {
-		PersonEntity result = null;
-		try {
-			Query query = em.createQuery("SELECT pe FROM PersonEntity pe WHERE pe.email=?1");
-			query.setParameter(1, email);
-			result = (PersonEntity) query.getSingleResult();
-		} catch (Exception e) {
-		}
-		return result;
-	}
 
-	private void launchActivation(PersonEntity pe) {
-		ISendActivationMail sender = (ISendActivationMail) ctx.getBean("sender");
-		sender.sendMail(pe);
-	}
 
 	@Override
 	public int matLogin(String email, String password) {
@@ -110,7 +95,7 @@ public class FesBes1 implements IFesBes1 {
 		Query query = em.createQuery("select p from Persons p where p.email= :username");
 		query.setParameter("username", username);
 		PersonEntity prs=(PersonEntity) query.getSingleResult(); //?????? may be changed to getResultList() for more safety.
-		List<SocialNetworkEntity> snList = prs.getPersonSocialNetworks();
+		List<SocialNetworkEntity> snList = prs.getPersonSocialNetworks(); //function already exists
 		
 	//if user have no selected SN building slots array with all false (i.e. free time intervals)
 		if(snList == null || snList.isEmpty()){
@@ -242,7 +227,8 @@ public class FesBes1 implements IFesBes1 {
 		resMatt.setSlots(resSlotsList);
 		return resMatt;
 	}
-
+	
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	@Override
 	public boolean removeMatt(String mattName, String username) {
 		boolean result=false;
@@ -316,6 +302,25 @@ public class FesBes1 implements IFesBes1 {
 		}
 		return result;
 	}
+	//****COMMON SERVING PRIVATE FUNCTIONS****
+	private PersonEntity getPEbyEmail(String email) {
+		PersonEntity result = null;
+		try {
+			Query query = em.createQuery("SELECT pe FROM PersonEntity pe WHERE pe.email=?1");
+			query.setParameter(1, email);
+			result = (PersonEntity) query.getSingleResult();
+		} catch (Exception e) {
+		}
+		return result;
+	}
+
+	private void launchActivation(PersonEntity pe) {
+		ISendActivationMail sender = (ISendActivationMail) ctx.getBean("sender");
+		sender.sendMail(pe);
+	}
 	
-	
+	private List<SocialNetworkEntity> getSocialNetworksByEmail(String email){
+		return getPEbyEmail(email).getPersonSocialNetworks();
+	}
+
 }

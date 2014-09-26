@@ -47,20 +47,21 @@ public class MattTest {
 	
 	public static void testAnatoly(IFesBes1 bes1){
 		int set1 = 10, set2 = 10, set3 = 10, set4 = 10;
+		Person prs = null;
 		for (int i=0; i<nPersons; i++){
-			Person prs = generatePerson();
+			prs = generatePerson();
 			set1 = bes1.setProfile(prs);
 			set2 = bes1.setProfile(prs);
-			bes1.setActive(prs.getEmail());
+			//bes1.setActive(prs.getEmail());
 			set3 = bes1.setProfile(prs);
 			prs.setSnNames(networks);
 			set4 = bes1.updateProfile(prs);
 		}
-		String email = "email493@gmail.com";
-		String password = "password493";
+		String email = prs.getEmail();
+		String password = prs.getPassword();
 		int login1 = bes1.matLogin(email, password);
-		email = "email494@gmail.com";
-		password  = "password494";
+		email = "email49456@gmail.com";
+		password  = "password49456";
 		int login2 = bes1.matLogin(email, password);
 		System.out.println(set1);
 		System.out.println(set2);

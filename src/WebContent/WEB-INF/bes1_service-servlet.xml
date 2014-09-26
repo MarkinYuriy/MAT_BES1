@@ -14,7 +14,7 @@
 
 <!-- ********** -->
 <!-- Burlap Service Exporter -->
-<bean id="burlapBes1Service" class="org.springframework.remoting.caucho.BurlapServiceExporter">
+<bean id="burlapBes1Service" class="org.springframework.remoting.caucho.HessianServiceExporter">
 <property  name="service" ref="database"></property> <!-- reference to the service -->
 <property name="serviceInterface" value="mat.IFesBes1"></property> <!-- interface of the service -->
 </bean>
