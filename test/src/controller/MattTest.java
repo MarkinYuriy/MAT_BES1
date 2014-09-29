@@ -11,7 +11,7 @@ import mat.MattData;
 import mat.Person;
 
 public class MattTest {
-	private static final int nIterations = 100;
+	private static final int nIterations = 2;
 	private static final int nDaysMax = 10;
 	private static final int nDaysMin = 1;
 	private static final int HOURS = 24;
@@ -25,23 +25,33 @@ public class MattTest {
 	public static void main(String[] args) {
 		AbstractApplicationContext ctx = new FileSystemXmlApplicationContext("beans.xml");
 		IFesBes1 bes1=(IFesBes1) ctx.getBean("ifesbes1");
-		//testAlexandra(bes1);
-		testAnatoly(bes1);
+		testAlexandra(bes1);
+		//testAnatoly(bes1);
 		
 	}
 	
 	public static void testAlexandra(IFesBes1 bes1){
 		//generating random Matt's, invoking tested functions
 				for (int i=0; i<nIterations; i++){
+				//create person
+					Person prs = generatePerson();
+					bes1.setProfile(prs);
+				//generating random Matt data
 					mat.MattData mData = generateMattData();	//randomly generating MattData
-					ArrayList<Boolean> slots = generateSlots(mData);	//generating slots
-					mat.Matt mattOld = new mat.Matt();	//creating Matt
-					mattOld.setData(mData);
-					mattOld.setSlots(slots);
+				//	mat.Matt mattOld = new mat.Matt();	//creating Matt
+					mat.Matt mattOld = bes1.createMatt(mData, prs.getEmail());
+				//	mattOld.setData(mData);
+					System.out.println(mattOld.getData().getName());
+					if (mattOld.getSlots() == null){
+						ArrayList<Boolean> slots = generateSlots(mData);	//generating slots
+						mattOld.setSlots(slots);
+					}	
+					System.out.println(mattOld.getData().getStartDate());
 					Matt mattNew = createNewMatt(mattOld); 
 				//testing save Matt function
-					String username = "name " + (int)(Math.random()*nIterations);
-					bes1.saveMatt(mattOld, mattNew, username);
+					
+					//String username = "name " + (int)(Math.random()*nIterations);
+				//	bes1.saveMatt(mattOld, mattNew, prs.getEmail());
 				}
 	}
 	
@@ -84,11 +94,10 @@ public class MattTest {
 	}
 
 	private static ArrayList<Boolean> generateSlots(MattData mData) {
-		int slotsNumber = mData.getnDays() * (mData.getEndHour() - mData.getStartHour())/(mData.getTimeSlot()/60); //60 - minutes in an hour.
-		ArrayList<Boolean> slots = new ArrayList<Boolean>(slotsNumber);
-		Collections.fill(slots, false);
+		int slotsNumber = mData.getnDays() * (mData.getEndHour() - mData.getStartHour())*(mData.getTimeSlot()/60); //60 - minutes in an hour.
+		ArrayList<Boolean> slots = new ArrayList<Boolean>(Collections.nCopies(slotsNumber, false));
 		for(int i=0; i<nTRUE; i++){
-			int index = (int)(Math.random()*slotsNumber);
+			int index = (int)(Math.random()*(slotsNumber-1));
 			slots.set(index, true);
 		}
 		return slots;
