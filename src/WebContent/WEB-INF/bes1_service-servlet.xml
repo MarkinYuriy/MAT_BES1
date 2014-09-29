@@ -14,14 +14,14 @@
 
 <!-- ********** -->
 <!-- Burlap Service Exporter -->
-<bean id="burlapBes1Service" class="org.springframework.remoting.caucho.HessianServiceExporter">
+<bean id="burlapBes1Service" class="org.springframework.remoting.caucho.BurlapServiceExporter">
 <property  name="service" ref="database"></property> <!-- reference to the service -->
 <property name="serviceInterface" value="mat.IFesBes1"></property> <!-- interface of the service -->
 </bean>
 <!-- ********** -->
 <!-- mapping to the application service -->
 <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
-<property name="mappings" value="/bes1_webservice.service=burlapBes1Service"/>
+<property name="mappings" value="/bes1_service.service=burlapBes1Service"/>
 </bean>
 <!-- Components for the Hibernate -->
 <bean id="emf"
