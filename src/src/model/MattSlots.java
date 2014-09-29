@@ -27,9 +27,7 @@ public class MattSlots {
 		this.slot_number = slot_number;
 	}
 
-	public MattSlots() {
-		super();
-	}
+	public MattSlots() {}
 	
 	
 		

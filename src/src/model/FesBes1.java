@@ -92,7 +92,7 @@ public class FesBes1 implements IFesBes1 {
 	private ArrayList<Boolean> getSlotsFromSN(MattData data, String username) {
 		ArrayList<Boolean> slots=null;
 	//get the list of SN for the user
-		Query query = em.createQuery("select p from Persons p where p.email= :username");
+		Query query = em.createQuery("select p from PersonEntity p where p.email= :username");
 		query.setParameter("username", username);
 		PersonEntity prs=(PersonEntity) query.getSingleResult(); //?????? may be changed to getResultList() for more safety.
 		List<SocialNetworkEntity> snList = prs.getPersonSocialNetworks(); //function already exists
@@ -106,13 +106,7 @@ public class FesBes1 implements IFesBes1 {
 			List<String> snNames = new LinkedList<String>();
 			for (SocialNetworkEntity sn: snList)
 				snNames.add(sn.getName());
-			//TODO remove try-catch
-			try {
-				slots = (ArrayList<Boolean>)iBackCon.getSlots(username, snNames.toArray(new String[snNames.size()]), data);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		//	slots = (ArrayList<Boolean>)iBackCon.getSlots(username, snNames.toArray(new String[snNames.size()]), data);
 					}
 		return slots;
 	}
@@ -181,7 +175,7 @@ public class FesBes1 implements IFesBes1 {
 				em.persist(mattInfo);
 				if (!boolSlots_toSlotNums.isEmpty()){ //Map isEmpty if no user selection
 					for(Map.Entry<Date, LinkedList<Integer>> entry: boolSlots_toSlotNums.entrySet()){
-						MattSlots mattSlots = new MattSlots(entry.getKey(), entry.getValue());
+					//	MattSlots mattSlots = new MattSlots(entry.getKey(), entry.getValue());
 					}
 				}
 				result = true;
@@ -228,6 +222,13 @@ public class FesBes1 implements IFesBes1 {
 		return resMatt;
 	}
 	
+	private ArrayList<Boolean> getSlotsFromDB(String mattName, int matt_id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	@Override
 	public boolean removeMatt(String mattName, String username) {
