@@ -26,10 +26,22 @@ public class MattTest {
 		AbstractApplicationContext ctx = new FileSystemXmlApplicationContext("beans.xml");
 		IFesBes1 bes1=(IFesBes1) ctx.getBean("ifesbes1");
 		//testAlexandra(bes1);
-		testAnatoly(bes1);
+		//testAnatoly(bes1);
+		testGlobal(bes1);
 		
 	}
 	
+	public static void testGlobal(IFesBes1 bes1) {
+		mat.Person prs1 = newPersonWithMatt(bes1);
+		mat.Person prs2 = newPersonWithMatt(bes1);
+		mat.Matt matt2 = newMattForUser(bes1, prs2);
+		mat.Person prs3 = newPersonWithMatt(bes1);
+		mat.Matt matt3 = newMattForUser(bes1, prs2);
+		mat.Matt testMatt = bes1.getMatt(matt2.getData().getName(), prs2.getEmail());
+		
+	}
+
+
 	public static void testAlexandra(IFesBes1 bes1){
 		//generating random Matt's, invoking tested functions
 				for (int i=0; i<nIterations; i++){
@@ -116,4 +128,23 @@ public class MattTest {
 		}
 		return new Person(name, snNames, email, password);
 	}
+	
+	private static Person newPersonWithMatt(IFesBes1 bes1) {
+		Person prs1 = generatePerson();
+		bes1.setProfile(prs1);
+		newMattForUser(bes1, prs1);
+		return prs1;
+	}
+
+	private static mat.Matt newMattForUser(IFesBes1 bes1, Person prs1) {
+		mat.MattData mData = generateMattData();
+		ArrayList<Boolean> slots = generateSlots(mData);
+		mat.Matt mattOld = new mat.Matt();
+		mattOld.setData(mData);
+		mattOld.setSlots(slots);
+		Matt mattNew = createNewMatt(mattOld);
+		bes1.saveMatt(mattOld, mattNew, prs1.getEmail());
+		return mattNew;
+	}
+
 }
