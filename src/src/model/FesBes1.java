@@ -1,10 +1,10 @@
 package model;
 
-import java.io.IOException;
 import java.util.*;
 
 import javax.persistence.*;
 
+import org.hibernate.Criteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Propagation;
@@ -79,11 +79,12 @@ public class FesBes1 implements IFesBes1 {
 		
 	//creating new Matt
 		mat.Matt newMatt = null;
-		if (slots != null) {
+	//TODO uncomment this if
+	//	if (slots != null) {
 			newMatt = new mat.Matt();
 			newMatt.setData(data);
 			newMatt.setSlots(slots);
-		}
+	//	}
 		return newMatt;
 	}
 	
@@ -106,6 +107,7 @@ public class FesBes1 implements IFesBes1 {
 			List<String> snNames = new LinkedList<String>();
 			for (SocialNetworkEntity sn: snList)
 				snNames.add(sn.getName());
+		//TODO uncomment getSlots() function
 		//	slots = (ArrayList<Boolean>)iBackCon.getSlots(username, snNames.toArray(new String[snNames.size()]), data);
 					}
 		return slots;
@@ -116,17 +118,20 @@ public class FesBes1 implements IFesBes1 {
 		Map<Date, LinkedList<Integer> > result = new TreeMap<Date, LinkedList<Integer> >();
 		if(slots != null && !slots.isEmpty() && data!= null){
 			int size = slots.size();
-			int numberOfSlotsPerDay = data.getnDays() * (data.getEndHour()-data.getStartHour());
+			int numberOfSlotsPerDay = data.getEndHour()-data.getStartHour();
 			HashMap<Integer, Date> dates=new HashMap<Integer, Date>();
 			Calendar calendar = new GregorianCalendar();
 			for (int i=0; i<size; i++){
-				if(slots.get(i)){ //returns true if slot value is 1 i.e. busy.
-				//	int curr = i+1; //because i begins with zero
+				if(slots.get(i).booleanValue()){ //returns true if slot value is true i.e. busy.
 					int dayNumber = i/numberOfSlotsPerDay; //because division returns the number of past days
 				    if(!dates.containsKey(dayNumber)){
 				    	calendar.setTime(data.getStartDate());
 						calendar.add(Calendar.DATE, dayNumber);
 						dates.put(dayNumber, calendar.getTime());
+						/*System.out.println(dayNumber);
+						System.out.println(i);
+						System.out.println(numberOfSlotsPerDay);
+						System.out.println(calendar.getTime());*/
 				    }
 					LinkedList<Integer> slotNums = result.get(calendar.getTime());
 					if (slotNums != null){
@@ -154,30 +159,38 @@ public class FesBes1 implements IFesBes1 {
 		//determine which slots were selected by user, rearrange the slots into Map<Date, slot_num>  
 			ArrayList<Boolean> user_slots = compareSlotMarks(mattOld.getSlots(), mattNew.getSlots());
 			Map<Date, LinkedList<Integer> > boolSlots_toSlotNums = slotsBoolToMap(user_slots, mattNew.getData()); 
+		
 		//checking if the user have no matt with the same name as newMatt
-			//determine person_id by username
-			Query query = em.createQuery("select p.person_id from Persons p where p.email= :username");
-			/*query = em.createQuery("select m from MattsInfo m join m.person_id p "
-					+ "where m.matt_name = :mattName and p.email= :username");*/
+		//determine person_id by username
+			Query query = em.createQuery("select p from PersonEntity p where p.email= :username");
+			/*query = em.createQuery("select m from MattInfoEntity m join m.personEntity p "
+					+ "where m.name = :mattName and p.email= :username");*/
 			query.setParameter("username", username);
-			int prs_id = (int) query.getSingleResult();
-			query = em.createQuery("select m from MattsInfo m "
-					+ "where m.matt_name = :mattName and m.person_id= :person_id");
+			PersonEntity prs = (PersonEntity) query.getSingleResult();
+		//checking if there is no Matt with this name for this user
+			query = em.createQuery("select m from MattInfoEntity m "
+					+ "where m.name = :mattName and m.personEntity= :person");
 			query.setParameter("mattName", mattNew.getData().getName());
-			query.setParameter("person_id", prs_id);
-			List<MattInfoEntity> matt_with_theSame_name= query.getResultList();
+			query.setParameter("person", prs);
+			int isMattNameDuplicated = query.getResultList().size();
 		//saving to DB if newMatt name unique for the user
-			if (matt_with_theSame_name == null || matt_with_theSame_name.isEmpty()){
+			if (isMattNameDuplicated == 0){
 				MattData data = mattNew.getData();
-				MattInfoEntity mattInfo = new MattInfoEntity(prs_id, data.getName(), data.getPassword(), 
+				MattInfoEntity mattInfo = new MattInfoEntity(data.getName(), data.getPassword(), 
 						data.getnDays(), data.getStartDate(), data.getStartHour(), 
-						data.getEndHour(), data.getTimeSlot());
-				em.persist(mattInfo);
+						data.getEndHour(), data.getTimeSlot(), prs);
+				List<MattSlots> mattSlots = new ArrayList<MattSlots>();
 				if (!boolSlots_toSlotNums.isEmpty()){ //Map isEmpty if no user selection
 					for(Map.Entry<Date, LinkedList<Integer>> entry: boolSlots_toSlotNums.entrySet()){
-					//	MattSlots mattSlots = new MattSlots(entry.getKey(), entry.getValue());
+						LinkedList<Integer> slotsByDate = entry.getValue();
+					//creating list of separate MattSlots 
+						for(int slot_num : slotsByDate){
+							mattSlots.add(new MattSlots(entry.getKey(), slot_num, mattInfo));
+						}	
 					}
 				}
+				mattInfo.setSlots(mattSlots);
+				em.persist(mattInfo); //saving MattInfoEntity to the DB.
 				result = true;
 			}
 				
@@ -186,7 +199,7 @@ public class FesBes1 implements IFesBes1 {
 	}
 	/*getting Persons Id*/
 	private int getPersonId(String username){ 
-		Query query = em.createQuery("select p.id from Persons p where p.email= :username"); 
+		Query query = em.createQuery("select p.id from PersonEntity p where p.email= :username"); 
 		query.setParameter("username", username);
 		PersonEntity prs=(PersonEntity) query.getSingleResult(); //	Getting person from DB
 		return prs.getId();
@@ -250,10 +263,11 @@ public class FesBes1 implements IFesBes1 {
 		int size = oldSlots.size();
 		ArrayList<Boolean> result = new ArrayList<Boolean>();
 		for (int i = 0; i < size; i++) {
-			if (oldSlots.get(i) && newSlots.get(i)) //building new slots array with user-marked intervals.
+			if (oldSlots.get(i).booleanValue() && newSlots.get(i).booleanValue()) //building new slots array with user-marked intervals.
 				result.add(false);
-			else
-				result.add(true);
+			else if (!oldSlots.get(i).booleanValue() && !newSlots.get(i).booleanValue())
+				result.add(false);
+			else result.add(true);
 		}
 		return result;
 	}
