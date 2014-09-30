@@ -31,29 +31,34 @@ public class MattTest {
 	}
 	
 	public static void testAlexandra(IFesBes1 bes1){
-		//generating random Matt's, invoking tested functions
-				for (int i=0; i<nIterations; i++){
-				//create person
-					Person prs = generatePerson();
-					bes1.setProfile(prs);
-				//generating random Matt data
-					mat.MattData mData = generateMattData();	//randomly generating MattData
-				//	mat.Matt mattOld = new mat.Matt();	//creating Matt
-					mat.Matt mattOld = bes1.createMatt(mData, prs.getEmail());
-				//	mattOld.setData(mData);
-					System.out.println(mattOld.getData().getName());
-					if (mattOld.getSlots() == null){
-						ArrayList<Boolean> slots = generateSlots(mData);	//generating slots
-						mattOld.setSlots(slots);
-					}	
-					System.out.println(mattOld.getData().getStartDate());
-					Matt mattNew = createNewMatt(mattOld); 
-				//testing save Matt function
+	
+	//generating random Matt's, invoking tested functions
+		for (int i=0; i<nIterations; i++){
+		//create person
+			  Person prs = generatePerson();
+			  bes1.setProfile(prs);
+		//generating random Matt data
+			mat.MattData mData = generateMattData();	//randomly generating MattData
+			mat.Matt mattOld = bes1.createMatt(mData, prs.getEmail()); //creating Matt
+			assert(mattOld.getData() != null);
+			assert(mattOld.getData().equals(mData));
 					
-					//String username = "name " + (int)(Math.random()*nIterations);
-				//	bes1.saveMatt(mattOld, mattNew, prs.getEmail());
-				}
-	}
+			if (mattOld.getSlots() == null){
+				ArrayList<Boolean> slots = generateSlots(mData);	//generating slots
+				mattOld.setSlots(slots);
+			}	
+			Matt mattNew = createNewMatt(mattOld); 
+			assert(mattNew.getSlots().size() == mattOld.getSlots().size());
+			assert(mattNew.getData().equals(mattOld.getData()));
+			
+		/*	System.out.println(mattOld.getData().getName());
+			System.out.println(mattOld.getData().getStartDate());
+			System.out.println(mattOld.getSlots().size());*/
+		//testing save Matt function
+			//String username = "name " + (int)(Math.random()*nIterations);
+			bes1.saveMatt(mattOld, mattNew, prs.getEmail());
+			}
+}
 	
 	public static void testAnatoly(IFesBes1 bes1){
 		int set1 = 10, set2 = 10, set3 = 10, set4 = 10;
@@ -84,9 +89,11 @@ public class MattTest {
 	private static Matt createNewMatt(Matt mattOld) {
 		Matt mattNew = new Matt();
 		mattNew.setData(mattOld.getData());
-		ArrayList<Boolean> newSlots = mattOld.getSlots();
+		ArrayList<Boolean> newSlots = new ArrayList<Boolean>();
+		newSlots.addAll(mattOld.getSlots());
+		int size = newSlots.size();
 		for(int i=0; i<nCHANGED_BY_USER; i++){
-			int index =  (int)(Math.random()*mattOld.getSlots().size());
+			int index =  (int)(Math.random()*size);
 			newSlots.set(index, true);
 		}
 		mattNew.setSlots(newSlots);
@@ -97,14 +104,14 @@ public class MattTest {
 		int slotsNumber = mData.getnDays() * (mData.getEndHour() - mData.getStartHour())*(mData.getTimeSlot()/60); //60 - minutes in an hour.
 		ArrayList<Boolean> slots = new ArrayList<Boolean>(Collections.nCopies(slotsNumber, false));
 		for(int i=0; i<nTRUE; i++){
-			int index = (int)(Math.random()*(slotsNumber-1));
+			int index = (int)(Math.random()*slotsNumber);
 			slots.set(index, true);
 		}
 		return slots;
 	}
 
 	public static mat.MattData generateMattData(){
-		String name = "name " + (int)Math.random()*nIterations;
+		String name = "name " + (int)(Math.random()*nIterations*1000);
 		int nDays = (int)(Math.random()*(nDaysMax-nDaysMin)) + nDaysMin;
 		Calendar calendar = GregorianCalendar.getInstance();
 		calendar.add(GregorianCalendar.DATE, (int)(Math.random()*(nDaysMax-nDaysMin)) + nDaysMin);
