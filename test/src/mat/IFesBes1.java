@@ -10,5 +10,5 @@ public interface IFesBes1 {
 	boolean saveMatt(mat.Matt mattOld,mat.Matt mattNew,String username );
 	boolean removeMatt(String mattName, String username);
 	mat.Person getProfile(String username);
-	void setActive(String username);
+	void setActive(String username,String hashcode);
 }

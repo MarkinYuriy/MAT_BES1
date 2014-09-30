@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/spring"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/MAT_Libs"/>
 	<classpathentry kind="lib" path="D:/java_workspace/spring_lessons/lesson7/lib/hessian-4.0.6.jar"/>
 	<classpathentry kind="lib" path="/MAT_Libs/jars/mat/mat_libs.jar"/>
 	<classpathentry kind="output" path="bin"/>

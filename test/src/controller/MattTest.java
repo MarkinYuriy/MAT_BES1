@@ -25,14 +25,14 @@ public class MattTest {
 	public static void main(String[] args) {
 		AbstractApplicationContext ctx = new FileSystemXmlApplicationContext("beans.xml");
 		IFesBes1 bes1=(IFesBes1) ctx.getBean("ifesbes1");
-<<<<<<< HEAD
+//<<<<<<< HEAD
 		//testAlexandra(bes1);
 		//testAnatoly(bes1);
-		testGlobal(bes1);
-=======
+//		testGlobal(bes1);
+//=======
 		testAlexandra(bes1);
 		//testAnatoly(bes1);
->>>>>>> origin/development
+//>>>>>>> origin/development
 		
 	}
 	
