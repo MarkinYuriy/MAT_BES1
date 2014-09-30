@@ -21,6 +21,9 @@ public class PersonEntity {
 	String password;
 	boolean isActive;
 	String hashCode;
+	
+	@OneToMany (mappedBy="personEntity")
+	List<MattInfoEntity> mattInfo;
 
 	public PersonEntity(mat.Person person){
 		personSocialNetworks = new ArrayList<SocialNetworkEntity>();
