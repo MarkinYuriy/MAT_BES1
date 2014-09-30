@@ -16,18 +16,27 @@ public class MattSlots {
 	@JoinColumn (name="matt_id")
 	MattInfoEntity mattInfo;
 		
-	@Column(name = "event_date", columnDefinition="DATETIME")
+	@Column(name = "event_date", columnDefinition="DATE")
 	@Temporal(TemporalType.DATE)
 	Date date;
 	
 	int slot_number;
 
-	public MattSlots(int matt_id, Date date, int slot_number) {
+	public MattSlots(Date date, int slot_number, MattInfoEntity mattInfo) {
 		this.date = date;
 		this.slot_number = slot_number;
+		this.mattInfo = mattInfo;
 	}
 
 	public MattSlots() {}
+
+	public MattInfoEntity getMattInfo() {
+		return mattInfo;
+	}
+
+	public void setMattInfo(MattInfoEntity mattInfo) {
+		this.mattInfo = mattInfo;
+	}
 	
 	
 		

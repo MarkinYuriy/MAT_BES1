@@ -12,9 +12,10 @@ public class MattInfoEntity {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "matt_id")
 	int matt_id;
-	@ManyToOne(targetEntity = PersonEntity.class)
+	
+	@ManyToOne (fetch=FetchType.LAZY) /*(targetEntity = PersonEntity.class)*/
 	@JoinColumn(name = "person_id")
-	int person_id;
+	PersonEntity personEntity;
 	
 	@OneToMany(mappedBy = "mattInfo", cascade = CascadeType.ALL)
 	List<MattSlots> slots;
@@ -31,9 +32,8 @@ public class MattInfoEntity {
 	int endHour;
 	int timeSlot; //in minutes
 	
-	public MattInfoEntity(int person_id, String name, String password,
-			int nDays, Date startDate, int startHour, int endHour, int timeSlot) {
-		this.person_id = person_id;
+	public MattInfoEntity(String name, String password, int nDays, Date startDate, 
+				int startHour, int endHour, int timeSlot, PersonEntity personEntity) {
 		this.name = name;
 		this.password = password;
 		this.nDays = nDays;
@@ -41,16 +41,13 @@ public class MattInfoEntity {
 		this.startHour = startHour;
 		this.endHour = endHour;
 		this.timeSlot = timeSlot;
+		this.personEntity = personEntity;
 	}
 
 	public MattInfoEntity() {}
 
 	public int getMatt_id() {
 		return matt_id;
-	}
-
-	public int getPerson_id() {
-		return person_id;
 	}
 
 	public String getName() {
@@ -79,6 +76,22 @@ public class MattInfoEntity {
 
 	public int getTimeSlot() {
 		return timeSlot;
+	}
+
+	public PersonEntity getPersonEntity() {
+		return personEntity;
+	}
+
+	public void setPersonEntity(PersonEntity person) {
+		this.personEntity = person;
+	}
+
+	public List<MattSlots> getSlots() {
+		return slots;
+	}
+
+	public void setSlots(List<MattSlots> slots) {
+		this.slots = slots;
 	}
 	
 	
