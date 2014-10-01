@@ -14,6 +14,7 @@ import mail.ISendActivationMail;
 import mat.*;
 
 public class FesBes1 implements IFesBes1 {
+	static final int MIN_PER_HOUR=60;
 	
 	@PersistenceContext(unitName = "springHibernate", type = PersistenceContextType.EXTENDED)
 	EntityManager em;
@@ -197,7 +198,7 @@ public class FesBes1 implements IFesBes1 {
 	
 	/*getting Person from DB*/
 	private PersonEntity getPersonFromDB(String username){ 
-		Query query = em.createQuery("select p.id from PersonEntity p where p.email= :username"); 
+		Query query = em.createQuery("select p from PersonEntity p where p.email= :username"); 
 		query.setParameter("username", username);
 		return (PersonEntity) query.getSingleResult(); //	Getting person from DB		 
 	}
@@ -216,13 +217,13 @@ public class FesBes1 implements IFesBes1 {
 				entity.getStartHour(), entity.getEndHour(), entity.getTimeSlot(), entity.getPassword());
 		
 		ArrayList<Boolean> slotsFromSn=getSlotsFromSN(mattData, username);
-		ArrayList<Boolean> slotsFromDB=getSlotsFromDB(entity.getMatt_id()); //From Sasha
+		ArrayList<Boolean> slotsFromDB=getSlotsFromDB(entity); //From Sasha
 		
 			
-		ArrayList<Boolean> resSlotsList = null;
+		ArrayList<Boolean> resSlotsList = new ArrayList<Boolean>();
 		boolean result; // result variable for merging slots
 		for (int i = 0; i < slotsFromDB.size(); i++) {
-			result = slotsFromDB.get(i) || slotsFromSn.get(i); // merging slots
+			result = (slotsFromDB.get(i) || slotsFromSn.get(i)); // merging slots
 			resSlotsList.add(result); // adding result slots to the result slots
 									
 		}
@@ -231,9 +232,17 @@ public class FesBes1 implements IFesBes1 {
 		return resMatt;
 	}
 	
-	private ArrayList<Boolean> getSlotsFromDB(int matt_id) {
-		
-		return null;
+	private ArrayList<Boolean> getSlotsFromDB(MattInfoEntity mattEntity) {
+	//determining number of slots and creating Boolean list with all slots marked as false.
+		int slotsNumber = (mattEntity.getEndHour() - mattEntity.getStartHour()) * 
+				mattEntity.getnDays() * FesBes1.MIN_PER_HOUR/mattEntity.getTimeSlot();
+		ArrayList<Boolean> slotsFromDB = new ArrayList<Boolean>(Collections.nCopies(slotsNumber, false));
+	//taking busy slot numbers from DB and changing ArrayList values (setting to true) by the index
+		List<MattSlots> mattSlots = mattEntity.getSlots();
+		for (MattSlots mattSlot : mattSlots)
+			slotsFromDB.set(mattSlot.getSlot_number(), true);
+	
+		return slotsFromDB;
 	}
 
 
