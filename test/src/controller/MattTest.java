@@ -25,15 +25,10 @@ public class MattTest {
 	public static void main(String[] args) {
 		AbstractApplicationContext ctx = new FileSystemXmlApplicationContext("beans.xml");
 		IFesBes1 bes1=(IFesBes1) ctx.getBean("ifesbes1");
-//<<<<<<< HEAD
-		//testAlexandra(bes1);
-		//testAnatoly(bes1);
-//		testGlobal(bes1);
-//=======
 		testAlexandra(bes1);
 		//testAnatoly(bes1);
-//>>>>>>> origin/development
-		
+		//testGlobal(bes1);
+		ctx.close();
 	}
 	
 	public static void testGlobal(IFesBes1 bes1) {
@@ -48,12 +43,14 @@ public class MattTest {
 
 
 	public static void testAlexandra(IFesBes1 bes1){
-	
+	//create person
+		  Person prs = generatePerson();
+		  bes1.setProfile(prs);
 	//generating random Matt's, invoking tested functions
 		for (int i=0; i<nIterations; i++){
 		//create person
-			  Person prs = generatePerson();
-			  bes1.setProfile(prs);
+		/*	  Person prs = generatePerson();
+			  bes1.setProfile(prs);*/
 		//generating random Matt data
 			mat.MattData mData = generateMattData();	//randomly generating MattData
 			mat.Matt mattOld = bes1.createMatt(mData, prs.getEmail()); //creating Matt
@@ -67,13 +64,19 @@ public class MattTest {
 			Matt mattNew = createNewMatt(mattOld); 
 			assert(mattNew.getSlots().size() == mattOld.getSlots().size());
 			assert(mattNew.getData().equals(mattOld.getData()));
-			
-		/*	System.out.println(mattOld.getData().getName());
-			System.out.println(mattOld.getData().getStartDate());
-			System.out.println(mattOld.getSlots().size());*/
-		//testing save Matt function
-			//String username = "name " + (int)(Math.random()*nIterations);
+	
+		//testing save and get Matt functions
 			bes1.saveMatt(mattOld, mattNew, prs.getEmail());
+			Matt testGetMatt = bes1.getMatt(mattNew.getData().getName(), prs.getEmail());
+			
+			assert(mattNew.getData().getName().equals(testGetMatt.getData().getName()));
+			assert(mattNew.getData().getnDays() == testGetMatt.getData().getnDays());
+			assert(mattNew.getData().getStartDate().equals(testGetMatt.getData().getStartDate()));
+			
+			assert(mattNew.getSlots().size() == testGetMatt.getSlots().size());
+			int size = mattNew.getSlots().size();
+			for(int j=0; j<size; j++)
+				assert(mattNew.getSlots().get(j) == testGetMatt.getSlots().get(j));
 			}
 }
 	
@@ -109,10 +112,11 @@ public class MattTest {
 		ArrayList<Boolean> newSlots = new ArrayList<Boolean>();
 		newSlots.addAll(mattOld.getSlots());
 		int size = newSlots.size();
-		for(int i=0; i<nCHANGED_BY_USER; i++){
-			int index =  (int)(Math.random()*size);
-			newSlots.set(index, true);
-		}
+		if (size > 0)
+			for(int i=0; i<nCHANGED_BY_USER; i++){
+				int index =  (int)(Math.random()*size);
+				newSlots.set(index, true);
+			}
 		mattNew.setSlots(newSlots);
 		return mattNew;
 	}
@@ -120,10 +124,11 @@ public class MattTest {
 	private static ArrayList<Boolean> generateSlots(MattData mData) {
 		int slotsNumber = mData.getnDays() * (mData.getEndHour() - mData.getStartHour())*(mData.getTimeSlot()/60); //60 - minutes in an hour.
 		ArrayList<Boolean> slots = new ArrayList<Boolean>(Collections.nCopies(slotsNumber, false));
-		for(int i=0; i<nTRUE; i++){
-			int index = (int)(Math.random()*slotsNumber);
-			slots.set(index, true);
-		}
+		if (slotsNumber > 0)
+			for(int i=0; i<nTRUE; i++){
+				int index = (int)(Math.random()*slotsNumber);
+				slots.set(index, true);
+			}
 		return slots;
 	}
 

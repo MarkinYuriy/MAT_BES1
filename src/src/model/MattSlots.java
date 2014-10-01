@@ -37,6 +37,12 @@ public class MattSlots {
 	public void setMattInfo(MattInfoEntity mattInfo) {
 		this.mattInfo = mattInfo;
 	}
+
+	public int getSlot_number() {
+		return slot_number;
+	}
+	
+	
 	
 	
 		
