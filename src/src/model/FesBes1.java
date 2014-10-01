@@ -93,10 +93,8 @@ public class FesBes1 implements IFesBes1 {
 	private ArrayList<Boolean> getSlotsFromSN(MattData data, String username) {
 		ArrayList<Boolean> slots=null;
 	//get the list of SN for the user
-		Query query = em.createQuery("select p from PersonEntity p where p.email= :username");
-		query.setParameter("username", username);
-		PersonEntity prs=(PersonEntity) query.getSingleResult(); //?????? may be changed to getResultList() for more safety.
-		List<SocialNetworkEntity> snList = prs.getPersonSocialNetworks(); //function already exists
+		PersonEntity prs = getPersonFromDB(username);
+		List<SocialNetworkEntity> snList = prs.getPersonSocialNetworks(); //PersonSocialNetworks is the field of class PersonEntity
 		
 	//if user have no selected SN building slots array with all false (i.e. free time intervals)
 		if(snList == null || snList.isEmpty()){
@@ -108,7 +106,7 @@ public class FesBes1 implements IFesBes1 {
 			for (SocialNetworkEntity sn: snList)
 				snNames.add(sn.getName());
 		//TODO uncomment getSlots() function
-		//	slots = (ArrayList<Boolean>)iBackCon.getSlots(username, snNames.toArray(new String[snNames.size()]), data);
+			//slots = (ArrayList<Boolean>)iBackCon.getSlots(prs.getEmail(), snNames.toArray(new String[snNames.size()]), data); //prs.getEmail() = username
 					}
 		return slots;
 	}
@@ -162,13 +160,11 @@ public class FesBes1 implements IFesBes1 {
 		
 		//checking if the user have no matt with the same name as newMatt
 		//determine person_id by username
-			Query query = em.createQuery("select p from PersonEntity p where p.email= :username");
 			/*query = em.createQuery("select m from MattInfoEntity m join m.personEntity p "
 					+ "where m.name = :mattName and p.email= :username");*/
-			query.setParameter("username", username);
-			PersonEntity prs = (PersonEntity) query.getSingleResult();
+			PersonEntity prs = getPersonFromDB(username);
 		//checking if there is no Matt with this name for this user
-			query = em.createQuery("select m from MattInfoEntity m "
+			Query query = em.createQuery("select m from MattInfoEntity m "
 					+ "where m.name = :mattName and m.personEntity= :person");
 			query.setParameter("mattName", mattNew.getData().getName());
 			query.setParameter("person", prs);
@@ -197,30 +193,30 @@ public class FesBes1 implements IFesBes1 {
 		}
 		return result;
 	}
-	/*getting Persons Id*/
-	private int getPersonId(String username){ 
+	
+	
+	/*getting Person from DB*/
+	private PersonEntity getPersonFromDB(String username){ 
 		Query query = em.createQuery("select p.id from PersonEntity p where p.email= :username"); 
 		query.setParameter("username", username);
-		PersonEntity prs=(PersonEntity) query.getSingleResult(); //	Getting person from DB
-		return prs.getId();
+		return (PersonEntity) query.getSingleResult(); //	Getting person from DB		 
 	}
-	
-	
-	
+		
 	
 	@Override
 	public Matt getMatt(String mattName, String username) {
 		Matt resMatt = new Matt();
-		int personId = getPersonId(username);
-		Query query = em.createQuery("select m from MattInfoEntity m where p.id= :personId and p.matt_name= :name"); 
-		query.setParameter("personId", personId);
-		query.setParameter("name", mattName);
+		PersonEntity person = getPersonFromDB(username);
+		Query query = em.createQuery("select m from MattInfoEntity m "
+				+ "where m.personEntity= :person and m.name= :mattName"); 
+		query.setParameter("person", person);
+		query.setParameter("mattName", mattName);
 		MattInfoEntity entity = (MattInfoEntity) query.getSingleResult();
 		MattData mattData = new MattData(entity.getName(), entity.getnDays(), entity.getStartDate(), 
 				entity.getStartHour(), entity.getEndHour(), entity.getTimeSlot(), entity.getPassword());
 		
 		ArrayList<Boolean> slotsFromSn=getSlotsFromSN(mattData, username);
-		ArrayList<Boolean> slotsFromDB=getSlotsFromDB(mattName, entity.getMatt_id()); //From Sasha
+		ArrayList<Boolean> slotsFromDB=getSlotsFromDB(entity.getMatt_id()); //From Sasha
 		
 			
 		ArrayList<Boolean> resSlotsList = null;
@@ -235,8 +231,8 @@ public class FesBes1 implements IFesBes1 {
 		return resMatt;
 	}
 	
-	private ArrayList<Boolean> getSlotsFromDB(String mattName, int matt_id) {
-		// TODO Auto-generated method stub
+	private ArrayList<Boolean> getSlotsFromDB(int matt_id) {
+		
 		return null;
 	}
 
