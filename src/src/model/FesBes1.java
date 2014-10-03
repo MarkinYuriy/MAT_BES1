@@ -1,5 +1,7 @@
 package model;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.persistence.*;
@@ -188,14 +190,70 @@ public class FesBes1 implements IFesBes1 {
 				}
 				mattInfo.setSlots(mattSlots);
 				em.persist(mattInfo); //saving MattInfoEntity to the DB.
+				if (em.getFlushMode() != FlushModeType.AUTO) //manually flushing the changes to DB
+					em.flush();
 				result = true;
+			//updating Mat Calendars in SN 
+				updateMatCalendarInSN(username, prs.getPersonSocialNetworks(), prs.getId());
 			}
 				
 		}
 		return result;
 	}
 	
-	
+	//updating Mat Calendars in SN
+	private void updateMatCalendarInSN(String username,
+			List<SocialNetworkEntity> personSocialNetworks, int prsId) {
+		if (username != null && personSocialNetworks != null){
+		//getting String[] of SN names
+			List<String> snNames = new LinkedList<String>();
+			for(SocialNetworkEntity SNEntity : personSocialNetworks)
+				snNames.add(SNEntity.getName());
+		//building list of actual MATTs	for current user
+		// 1 - getting todays date without taking into account possible user locale settings.
+		/*	Calendar calendar = GregorianCalendar.getInstance(); 
+			DateFormat df = new SimpleDateFormat("YYYY-MM-DD");
+			String strDate = df.format(calendar.getTime());
+			Date todaysDate = df.parse(strDate);*/
+		// 2 - creating Query to select all actual for today Matt names for this user
+		// using native SQL for mySQL server, because JPQL currently doesn't support required DATE operations
+			Query query = em.createNativeQuery("select * from test.mattsinfo where person_id=" + prsId +
+					" and date_add(startDate, interval nDays day) > curdate()", MattInfoEntity.class);
+			List<MattInfoEntity> mattEntities = query.getResultList();
+		// 3 - building MATTs from MattEntities
+			List<Matt> actualUserMatts = new LinkedList<Matt>();
+			for(MattInfoEntity entity : mattEntities)
+				actualUserMatts.add(getMattFromMattEntity(entity, username));	
+			
+			iBackCon.setMatCalendar(username, snNames.toArray(new String[snNames.size()]), actualUserMatts);
+		}
+	}
+
+
+
+	private Matt getMattFromMattEntity(MattInfoEntity entity, String username) {
+		Matt matt = new Matt();
+		if (entity != null){
+			MattData mattData = new MattData(entity.getName(), entity.getnDays(), entity.getStartDate(), 
+					entity.getStartHour(), entity.getEndHour(), entity.getTimeSlot(), entity.getPassword());
+			
+			ArrayList<Boolean> slotsFromSn=getSlotsFromSN(mattData, username);
+			ArrayList<Boolean> slotsFromDB=getSlotsFromDB(entity); 
+							
+			ArrayList<Boolean> resSlotsList = new ArrayList<Boolean>();
+			boolean result; // result variable for merging slots
+			for (int i = 0; i < slotsFromDB.size(); i++) {
+				result = (slotsFromDB.get(i) || slotsFromSn.get(i)); // merging slots
+				resSlotsList.add(result); // adding result slots to the result slots							
+			}
+			matt.setData(mattData);
+			matt.setSlots(resSlotsList);
+		}
+		return matt;
+	}
+
+
+
 	/*getting Person from DB*/
 	private PersonEntity getPersonFromDB(String username){ 
 		Query query = em.createQuery("select p from PersonEntity p where p.email= :username"); 
@@ -206,30 +264,14 @@ public class FesBes1 implements IFesBes1 {
 	
 	@Override
 	public Matt getMatt(String mattName, String username) {
-		Matt resMatt = new Matt();
 		PersonEntity person = getPersonFromDB(username);
 		Query query = em.createQuery("select m from MattInfoEntity m "
 				+ "where m.personEntity= :person and m.name= :mattName"); 
 		query.setParameter("person", person);
 		query.setParameter("mattName", mattName);
 		MattInfoEntity entity = (MattInfoEntity) query.getSingleResult();
-		MattData mattData = new MattData(entity.getName(), entity.getnDays(), entity.getStartDate(), 
-				entity.getStartHour(), entity.getEndHour(), entity.getTimeSlot(), entity.getPassword());
 		
-		ArrayList<Boolean> slotsFromSn=getSlotsFromSN(mattData, username);
-		ArrayList<Boolean> slotsFromDB=getSlotsFromDB(entity); //From Sasha
-		
-			
-		ArrayList<Boolean> resSlotsList = new ArrayList<Boolean>();
-		boolean result; // result variable for merging slots
-		for (int i = 0; i < slotsFromDB.size(); i++) {
-			result = (slotsFromDB.get(i) || slotsFromSn.get(i)); // merging slots
-			resSlotsList.add(result); // adding result slots to the result slots
-									
-		}
-		resMatt.setData(mattData);
-		resMatt.setSlots(resSlotsList);
-		return resMatt;
+		return getMattFromMattEntity(entity, username);
 	}
 	
 	private ArrayList<Boolean> getSlotsFromDB(MattInfoEntity mattEntity) {
