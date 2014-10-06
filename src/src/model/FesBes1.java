@@ -1,12 +1,9 @@
 package model;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.persistence.*;
 
-import org.hibernate.Criteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Propagation;
@@ -82,12 +79,11 @@ public class FesBes1 implements IFesBes1 {
 		
 	//creating new Matt
 		mat.Matt newMatt = null;
-	//TODO uncomment this if
-	//	if (slots != null) {
+	if (slots != null) {
 			newMatt = new mat.Matt();
 			newMatt.setData(data);
 			newMatt.setSlots(slots);
-	//	}
+		}
 		return newMatt;
 	}
 	
@@ -108,8 +104,7 @@ public class FesBes1 implements IFesBes1 {
 			List<String> snNames = new LinkedList<String>();
 			for (SocialNetworkEntity sn: snList)
 				snNames.add(sn.getName());
-		//TODO uncomment getSlots() function
-			//slots = (ArrayList<Boolean>)iBackCon.getSlots(prs.getEmail(), snNames.toArray(new String[snNames.size()]), data); //prs.getEmail() = username
+			slots = (ArrayList<Boolean>)iBackCon.getSlots(prs.getEmail(), snNames.toArray(new String[snNames.size()]), data); //prs.getEmail() = username
 					}
 		return slots;
 	}
@@ -129,10 +124,6 @@ public class FesBes1 implements IFesBes1 {
 				    	calendar.setTime(data.getStartDate());
 						calendar.add(Calendar.DATE, dayNumber);
 						dates.put(dayNumber, calendar.getTime());
-						/*System.out.println(dayNumber);
-						System.out.println(i);
-						System.out.println(numberOfSlotsPerDay);
-						System.out.println(calendar.getTime());*/
 				    }
 					LinkedList<Integer> slotNums = result.get(calendar.getTime());
 					if (slotNums != null){
