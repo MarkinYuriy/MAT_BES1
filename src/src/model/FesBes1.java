@@ -319,12 +319,14 @@ public class FesBes1 implements IFesBes1 {
 
 	@Override
 	public String[] getMattNames(String username) {
-		String str = "Select m.mattName from MattInfo where m.userName = '"+username+"'";
-		Query query = em.createQuery(str); //sending query
-		ArrayList<String> listOfNames = (ArrayList<String>) query.getResultList();	//getting result list
-		String[] resultArr = new String[listOfNames.size()];	
-		resultArr = listOfNames.toArray(resultArr);
-		return resultArr;
+		 PersonEntity prs = getPersonFromDB(username);
+		 String str = "Select m.name from MattInfoEntity m where m.personEntity = :user";
+		 Query query = em.createQuery(str); //sending query
+		 query.setParameter("user", prs);
+		 ArrayList<String> listOfNames = (ArrayList<String>) query.getResultList(); //getting result list
+		 String[] resultArr = new String[listOfNames.size()]; 
+		 resultArr = listOfNames.toArray(resultArr);
+		 return resultArr;
 	}
 
 	@Override
