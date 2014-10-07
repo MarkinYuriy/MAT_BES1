@@ -97,7 +97,7 @@ public class FesBes1 implements IFesBes1 {
 		
 	//if user have no selected SN building slots array with all false (i.e. free time intervals)
 		if(snList == null || snList.isEmpty()){
-			int slotsNumber = data.getnDays() * (data.getEndHour() - data.getStartHour())*(data.getTimeSlot()/60); //60 - minutes in an hour.
+			int slotsNumber = data.getnDays() * (data.getEndHour() - data.getStartHour())*(data.getTimeSlot()/MIN_PER_HOUR); //60 - minutes in an hour.
 			slots = new ArrayList<Boolean>(Collections.nCopies(slotsNumber, false));
 		}
 		else { //getting slots from SN networks
@@ -128,7 +128,7 @@ public class FesBes1 implements IFesBes1 {
 					LinkedList<Integer> slotNums = result.get(calendar.getTime());
 					if (slotNums != null){
 						slotNums.add(i);
-						result.replace(calendar.getTime(), slotNums);
+						result.put(calendar.getTime(), slotNums); //change "replace" to "put", as replace appeared only since 1.8
 					}
 					else {
 						slotNums = new LinkedList<Integer>();
@@ -148,15 +148,11 @@ public class FesBes1 implements IFesBes1 {
 	public boolean saveMatt(Matt mattOld, Matt mattNew, String username) {
 		boolean result = false;
 		if (mattNew != null && mattOld != null && username != null) {
-		//determine which slots were selected by user, rearrange the slots into Map<Date, slot_num>  
-			ArrayList<Boolean> user_slots = compareSlotMarks(mattOld.getSlots(), mattNew.getSlots());
-			Map<Date, LinkedList<Integer> > boolSlots_toSlotNums = slotsBoolToMap(user_slots, mattNew.getData()); 
-		
-		//checking if the user have no matt with the same name as newMatt
 		//determine person_id by username
-			/*query = em.createQuery("select m from MattInfoEntity m join m.personEntity p "
-					+ "where m.name = :mattName and p.email= :username");*/
+				/*query = em.createQuery("select m from MattInfoEntity m join m.personEntity p "
+						+ "where m.name = :mattName and p.email= :username");*/
 			PersonEntity prs = getPersonFromDB(username);
+			
 		//checking if there is no Matt with this name for this user
 			Query query = em.createQuery("select m from MattInfoEntity m "
 					+ "where m.name = :mattName and m.personEntity= :person");
@@ -165,6 +161,15 @@ public class FesBes1 implements IFesBes1 {
 			int isMattNameDuplicated = query.getResultList().size();
 		//saving to DB if newMatt name unique for the user
 			if (isMattNameDuplicated == 0){
+				//determine which slots were selected by user, rearrange the slots into Map<Date, slot_num> 
+				List<SocialNetworkEntity> snList = prs.getPersonSocialNetworks();
+				ArrayList<Boolean> user_slots;
+				if(snList!=null && !snList.isEmpty())
+					user_slots = compareSlotMarks(mattOld.getSlots(), mattNew.getSlots());
+				else 
+					user_slots = mattNew.getSlots();
+				Map<Date, LinkedList<Integer> > boolSlots_toSlotNums = slotsBoolToMap(user_slots, mattNew.getData());
+			//creating MattInfoEntity
 				MattData data = mattNew.getData();
 				MattInfoEntity mattInfo = new MattInfoEntity(data.getName(), data.getPassword(), 
 						data.getnDays(), data.getStartDate(), data.getStartHour(), 
@@ -185,7 +190,8 @@ public class FesBes1 implements IFesBes1 {
 					em.flush();
 				result = true;
 			//updating Mat Calendars in SN 
-				updateMatCalendarInSN(username, prs.getPersonSocialNetworks(), prs.getId());
+				if(snList!=null && !snList.isEmpty())
+					updateMatCalendarInSN(username, prs.getPersonSocialNetworks(), prs.getId());
 			}
 				
 		}
