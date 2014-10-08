@@ -20,7 +20,7 @@ public class MattTest {
 	private static final int nCHANGED_BY_USER = 3;
 	private static final int nPersons = 1;
 	private static final int nNames = 1000;
-	private static final String[] networks = {"google","facebook","apple","vk"};
+	private static final String[] networks = {"Google"}; //,"facebook","apple","vk"};
 
 	public static void main(String[] args) {
 		AbstractApplicationContext ctx = new FileSystemXmlApplicationContext("beans.xml");
@@ -43,14 +43,17 @@ public class MattTest {
 
 
 	public static void testAlexandra(IFesBes1 bes1){
+	//fill SN networks table
+	
 	//create person
-		  Person prs = generatePerson();
+		  Person prs = new Person("name12", networks, "Emailname", null);//generatePerson();
+		  prs.setSnNames(networks);
 		  bes1.setProfile(prs);
 	//generating random Matt's, invoking tested functions
-		for (int i=0; i<nIterations; i++){
+	/*	for (int i=0; i<nIterations; i++){
 		//create person
-		/*	  Person prs = generatePerson();
-			  bes1.setProfile(prs);*/
+			  Person prs = generatePerson();
+			  bes1.setProfile(prs);
 		//generating random Matt data
 			mat.MattData mData = generateMattData();	//randomly generating MattData
 			mat.Matt mattOld = bes1.createMatt(mData, prs.getEmail()); //creating Matt
@@ -77,7 +80,7 @@ public class MattTest {
 			int size = mattNew.getSlots().size();
 			for(int j=0; j<size; j++)
 				assert(mattNew.getSlots().get(j) == testGetMatt.getSlots().get(j));
-			}
+			}*/
 }
 	
 	public static void testAnatoly(IFesBes1 bes1){
