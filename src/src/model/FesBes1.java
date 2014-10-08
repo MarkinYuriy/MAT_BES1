@@ -73,16 +73,27 @@ public class FesBes1 implements IFesBes1 {
 		 * value="http://localhost:8080/bes1bes2_service/bes1bes2_service.service"
 		 * property name="serviceInterface" value="mat.IBackConnector"
 		 */
+		mat.Matt newMatt = null;
+		if (data != null && username != null){
+	//determine person_id by username
+		PersonEntity prs = getPersonFromDB(username);
+	//checking if there is no Matt with this name for this user
+		Query query = em.createQuery("select m from MattInfoEntity m "
+				+ "where m.name = :mattName and m.personEntity= :person");
+		query.setParameter("mattName", data.getName());
+		query.setParameter("person", prs);
+		int isMattNameDuplicated = query.getResultList().size();
+		if (isMattNameDuplicated == 0){	
 	/*getting list of user Social Networks, 
 	  invoking getSlots() function to get Boolean ArrayList of free/busy intervals.*/
-		ArrayList<Boolean> slots= getSlotsFromSN(data, username);
-		
+		ArrayList<Boolean> slots= getSlotsFromSN(data, username);		
 	//creating new Matt
-		mat.Matt newMatt = null;
 	if (slots != null) {
 			newMatt = new mat.Matt();
 			newMatt.setData(data);
 			newMatt.setSlots(slots);
+		}
+		}
 		}
 		return newMatt;
 	}
@@ -149,18 +160,11 @@ public class FesBes1 implements IFesBes1 {
 		boolean result = false;
 		if (mattNew != null && mattOld != null && username != null) {
 		//determine person_id by username
+			PersonEntity prs = getPersonFromDB(username);
 				/*query = em.createQuery("select m from MattInfoEntity m join m.personEntity p "
 						+ "where m.name = :mattName and p.email= :username");*/
-			PersonEntity prs = getPersonFromDB(username);
 			
-		//checking if there is no Matt with this name for this user
-			Query query = em.createQuery("select m from MattInfoEntity m "
-					+ "where m.name = :mattName and m.personEntity= :person");
-			query.setParameter("mattName", mattNew.getData().getName());
-			query.setParameter("person", prs);
-			int isMattNameDuplicated = query.getResultList().size();
 		//saving to DB if newMatt name unique for the user
-			if (isMattNameDuplicated == 0){
 				//determine which slots were selected by user, rearrange the slots into Map<Date, slot_num> 
 				List<SocialNetworkEntity> snList = prs.getPersonSocialNetworks();
 				ArrayList<Boolean> user_slots;
@@ -194,7 +198,6 @@ public class FesBes1 implements IFesBes1 {
 					updateMatCalendarInSN(username, prs.getPersonSocialNetworks(), prs.getId());
 			}
 				
-		}
 		return result;
 	}
 	
