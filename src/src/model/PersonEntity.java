@@ -1,7 +1,6 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import javax.persistence.*;
 
@@ -14,8 +13,15 @@ public class PersonEntity {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="person_id")
 	int id;
-	@ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-	List<SocialNetworkEntity> personSocialNetworks;
+	
+//	@ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinTable(name = "prsin_socialNetworks", joinColumns = { 
+			@JoinColumn(name = "person_id", nullable = false) }, 
+			inverseJoinColumns = { @JoinColumn(name = "sn_id", 
+					nullable = false) })
+	Set<SocialNetworkEntity> personSocialNetworks;
+	
 	String name;
 	String email;//the same as username
 	String password;
@@ -26,28 +32,25 @@ public class PersonEntity {
 	List<MattInfoEntity> mattInfo;
 
 	public PersonEntity(mat.Person person){
-		personSocialNetworks = new ArrayList<SocialNetworkEntity>();
+		/*personSocialNetworks = new ArrayList<SocialNetworkEntity>();
 		for (int i=0; i<person.getSnNames().length; i++){
 			SocialNetworkEntity sne = new SocialNetworkEntity(person.getSnNames()[i]);
 			personSocialNetworks.add(sne);
-		}
+		}*/
 		this.name = person.getName();
 		this.email = person.getEmail();
 		this.password = person.getPassword();
 		this.isActive = false;
 	}
+	
+	
+	
 public PersonEntity(){}
 
 public int getId() {
 	return id;
 }
-public List<SocialNetworkEntity> getPersonSocialNetworks() {
-	return personSocialNetworks;
-}
-public void setPersonSocialNetworks(
-		List<SocialNetworkEntity> personSocialNetworks) {
-	this.personSocialNetworks = personSocialNetworks;
-}
+
 public String getEmail() {
 	return email;
 }
@@ -74,8 +77,11 @@ public void setHashCode(String hashCode) {
 }
 public Person toPerson(){
 	String [] snNames = new String[personSocialNetworks.size()];
-	for (int i=0; i<snNames.length; i++)
-		snNames[i] = personSocialNetworks.get(i).getName();
+	int i=0;
+	for (SocialNetworkEntity sn : personSocialNetworks){
+		snNames[i] = sn.getName();
+		i++;
+	}
 	return new Person(name, snNames, email, password);
 }
 public String getName() {
@@ -83,5 +89,18 @@ public String getName() {
 }
 public void setName(String name) {
 	this.name = name;
+}
+
+
+
+public Set<SocialNetworkEntity> getPersonSocialNetworks() {
+	return personSocialNetworks;
+}
+
+
+
+public void setPersonSocialNetworks(
+		Set<SocialNetworkEntity> personSocialNetworks) {
+	this.personSocialNetworks = personSocialNetworks;
 }
 }
