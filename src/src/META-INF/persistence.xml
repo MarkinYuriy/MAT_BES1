@@ -11,6 +11,7 @@
  value="com.mysql.jdbc.Driver"/>
  <property name="hibernate.connection.username" value="root"/>
  <property name="hibernate.connection.password" value="12345.com"/>
+ <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
  </properties>
   </persistence-unit>
 </persistence>
