@@ -51,6 +51,7 @@ public class FesBes1 implements IFesBes1 {
 
 //populating user SN list
 	@SuppressWarnings("unchecked")
+	@Transactional (readOnly=false, propagation=Propagation.REQUIRED)
 	private Set<SocialNetworkEntity> getSocialNetworks(String[] snNames) {
 		List<SocialNetworkEntity> snFromDB;
 		//List<SocialNetworkEntity> personSocialNetworks = new ArrayList<SocialNetworkEntity>();
@@ -59,8 +60,13 @@ public class FesBes1 implements IFesBes1 {
 		//getting SN from DB
 			snFromDB= em.createQuery("select sn from SocialNetworkEntity sn where sn.name= :snName").
 					setParameter("snName", snName).getResultList();
-			if (snFromDB != null)
+			if (snFromDB != null && !snFromDB.isEmpty())
 				personSocialNetworks.addAll(snFromDB);
+			else {
+				SocialNetworkEntity newSN = new SocialNetworkEntity(snName);
+				personSocialNetworks.add(newSN);
+				em.persist(newSN);
+			}
 		}
 		return personSocialNetworks;
 	}
