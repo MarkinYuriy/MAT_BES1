@@ -4,6 +4,7 @@ import java.util.*;
 
 import javax.persistence.*;
 
+import org.apache.commons.collections.functors.FalsePredicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Propagation;
@@ -30,8 +31,10 @@ public class FesBes1 implements IFesBes1 {
 		int result = Response.UNKNOWN;
 		if (person != null) {
 			PersonEntity currentPE = getPEbyEmail(person.getEmail()); //currentPE is a personEntity with considered email from database
-			if (currentPE == null) {									//currentPE not exists
+			if (currentPE == null) {								//currentPE not exists
 				currentPE = new PersonEntity(person);
+				Set<SocialNetworkEntity> personSocialNetworks = getSocialNetworks(person.getSnNames());
+				currentPE.setPersonSocialNetworks(personSocialNetworks);	//setting user SN
 				currentPE.setHashCode(UUID.randomUUID().toString());		//create unique confirmation code for person
 				em.persist(currentPE);  
 				launchActivation(currentPE);								//launch activate mechanism
@@ -46,6 +49,21 @@ public class FesBes1 implements IFesBes1 {
 		return result;
 	}
 
+//populating user SN list
+	@SuppressWarnings("unchecked")
+	private Set<SocialNetworkEntity> getSocialNetworks(String[] snNames) {
+		List<SocialNetworkEntity> snFromDB;
+		//List<SocialNetworkEntity> personSocialNetworks = new ArrayList<SocialNetworkEntity>();
+		Set<SocialNetworkEntity> personSocialNetworks=new HashSet<SocialNetworkEntity>();
+		for(String snName: snNames){
+		//getting SN from DB
+			snFromDB= em.createQuery("select sn from SocialNetworkEntity sn where sn.name= :snName").
+					setParameter("snName", snName).getResultList();
+			if (snFromDB != null)
+				personSocialNetworks.addAll(snFromDB);
+		}
+		return personSocialNetworks;
+	}
 
 
 	@Override
@@ -86,7 +104,7 @@ public class FesBes1 implements IFesBes1 {
 		if (isMattNameDuplicated == 0){	
 	/*getting list of user Social Networks, 
 	  invoking getSlots() function to get Boolean ArrayList of free/busy intervals.*/
-		ArrayList<Boolean> slots= getSlotsFromSN(data, username);		
+		ArrayList<Boolean> slots= getSlotsFromSN(data, username);
 	//creating new Matt
 	if (slots != null) {
 			newMatt = new mat.Matt();
@@ -104,7 +122,7 @@ public class FesBes1 implements IFesBes1 {
 		ArrayList<Boolean> slots=null;
 	//get the list of SN for the user
 		PersonEntity prs = getPersonFromDB(username);
-		List<SocialNetworkEntity> snList = prs.getPersonSocialNetworks(); //PersonSocialNetworks is the field of class PersonEntity
+		Set<SocialNetworkEntity> snList = prs.getPersonSocialNetworks(); //PersonSocialNetworks is the field of class PersonEntity
 		
 	//if user have no selected SN building slots array with all false (i.e. free time intervals)
 		if(snList == null || snList.isEmpty()){
@@ -125,30 +143,32 @@ public class FesBes1 implements IFesBes1 {
 		Map<Date, LinkedList<Integer> > result = new TreeMap<Date, LinkedList<Integer> >();
 		if(slots != null && !slots.isEmpty() && data!= null){
 			int size = slots.size();
-			int numberOfSlotsPerDay = data.getEndHour()-data.getStartHour();
+			int numberOfSlotsPerDay=data.getEndHour()-data.getStartHour();
 			HashMap<Integer, Date> dates=new HashMap<Integer, Date>();
 			Calendar calendar = new GregorianCalendar();
-			for (int i=0; i<size; i++){
-				if(slots.get(i).booleanValue()){ //returns true if slot value is true i.e. busy.
-					int dayNumber = i/numberOfSlotsPerDay; //because division returns the number of past days
-				    if(!dates.containsKey(dayNumber)){
-				    	calendar.setTime(data.getStartDate());
-						calendar.add(Calendar.DATE, dayNumber);
-						dates.put(dayNumber, calendar.getTime());
-				    }
-					LinkedList<Integer> slotNums = result.get(calendar.getTime());
-					if (slotNums != null){
-						slotNums.add(i);
-						result.put(calendar.getTime(), slotNums); //change "replace" to "put", as replace appeared only since 1.8
+			if (numberOfSlotsPerDay > 0){
+				for (int i=0; i<size; i++){
+					if(slots.get(i).booleanValue()){ //returns true if slot value is true i.e. busy.
+						int dayNumber = i/numberOfSlotsPerDay; //because division returns the number of past days
+					    if(!dates.containsKey(dayNumber)){
+					    	calendar.setTime(data.getStartDate());
+							calendar.add(Calendar.DATE, dayNumber);
+							dates.put(dayNumber, calendar.getTime());
+					    }
+						LinkedList<Integer> slotNums = result.get(calendar.getTime());
+						if (slotNums != null){
+							slotNums.add(i);
+							result.replace(calendar.getTime(), slotNums); //change "replace" to "put", as replace appeared only since 1.8
+						}
+						else {
+							slotNums = new LinkedList<Integer>();
+							slotNums.add(i);
+							result.put(calendar.getTime(), slotNums);
+						}				
+						
 					}
-					else {
-						slotNums = new LinkedList<Integer>();
-						slotNums.add(i);
-						result.put(calendar.getTime(), slotNums);
-					}				
-					
 				}
-			}
+		}
 		}
 		
 		return result;
@@ -166,7 +186,7 @@ public class FesBes1 implements IFesBes1 {
 			
 		//saving to DB if newMatt name unique for the user
 				//determine which slots were selected by user, rearrange the slots into Map<Date, slot_num> 
-				List<SocialNetworkEntity> snList = prs.getPersonSocialNetworks();
+				Set<SocialNetworkEntity> snList = prs.getPersonSocialNetworks();
 				ArrayList<Boolean> user_slots;
 				if(snList!=null && !snList.isEmpty())
 					user_slots = compareSlotMarks(mattOld.getSlots(), mattNew.getSlots());
@@ -203,7 +223,7 @@ public class FesBes1 implements IFesBes1 {
 	
 	//updating Mat Calendars in SN
 	private void updateMatCalendarInSN(String username,
-			List<SocialNetworkEntity> personSocialNetworks, int prsId) {
+			Set<SocialNetworkEntity> personSocialNetworks, int prsId) {
 		if (username != null && personSocialNetworks != null){
 		//getting String[] of SN names
 			List<String> snNames = new LinkedList<String>();
@@ -242,7 +262,8 @@ public class FesBes1 implements IFesBes1 {
 							
 			ArrayList<Boolean> resSlotsList = new ArrayList<Boolean>();
 			boolean result; // result variable for merging slots
-			for (int i = 0; i < slotsFromDB.size(); i++) {
+			int size = slotsFromDB.size();
+			for (int i = 0; i < size; i++) {
 				result = (slotsFromDB.get(i) || slotsFromSn.get(i)); // merging slots
 				resSlotsList.add(result); // adding result slots to the result slots							
 			}
@@ -276,14 +297,15 @@ public class FesBes1 implements IFesBes1 {
 	
 	private ArrayList<Boolean> getSlotsFromDB(MattInfoEntity mattEntity) {
 	//determining number of slots and creating Boolean list with all slots marked as false.
-		int slotsNumber = (mattEntity.getEndHour() - mattEntity.getStartHour()) * 
-				mattEntity.getnDays() * FesBes1.MIN_PER_HOUR/mattEntity.getTimeSlot();
+		int numberOfSlotsPerDay=mattEntity.getEndHour()-mattEntity.getStartHour();
+		int slotsNumber = numberOfSlotsPerDay * mattEntity.getnDays() * FesBes1.MIN_PER_HOUR/mattEntity.getTimeSlot();
 		ArrayList<Boolean> slotsFromDB = new ArrayList<Boolean>(Collections.nCopies(slotsNumber, false));
 	//taking busy slot numbers from DB and changing ArrayList values (setting to true) by the index
 		List<MattSlots> mattSlots = mattEntity.getSlots();
-		for (MattSlots mattSlot : mattSlots)
-			slotsFromDB.set(mattSlot.getSlot_number(), true);
-	
+		if (mattSlots != null)
+			for (MattSlots mattSlot : mattSlots)
+				slotsFromDB.set(mattSlot.getSlot_number(), true);
+			
 		return slotsFromDB;
 	}
 
@@ -355,11 +377,7 @@ public class FesBes1 implements IFesBes1 {
 			PersonEntity pe = getPEbyEmail(email);
 			result = Response.NO_REGISTRATION;
 			if (pe != null) {
-				List<SocialNetworkEntity> personSocialNetworks = new ArrayList<SocialNetworkEntity>();
-				for (int i=0; i<person.getSnNames().length; i++){
-					SocialNetworkEntity sne = new SocialNetworkEntity(person.getSnNames()[i]);
-					personSocialNetworks.add(sne);
-				}
+				Set<SocialNetworkEntity> personSocialNetworks = getSocialNetworks(person.getSnNames());
 				pe.setPersonSocialNetworks(personSocialNetworks);
 				result = Response.OK;
 			}
@@ -383,7 +401,7 @@ public class FesBes1 implements IFesBes1 {
 		sender.sendMail(pe);
 	}
 	
-	private List<SocialNetworkEntity> getSocialNetworksByEmail(String email){
+	private Set<SocialNetworkEntity> getSocialNetworksByEmail(String email){
 		return getPEbyEmail(email).getPersonSocialNetworks();
 	}
 
