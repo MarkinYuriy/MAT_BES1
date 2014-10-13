@@ -264,13 +264,16 @@ public class FesBes1 implements IFesBes1 {
 			
 			ArrayList<Boolean> slotsFromSn=getSlotsFromSN(mattData, username);
 			ArrayList<Boolean> slotsFromDB=getSlotsFromDB(entity); 
-							
 			ArrayList<Boolean> resSlotsList = new ArrayList<Boolean>();
-			boolean result; // result variable for merging slots
-			int size = slotsFromDB.size();
-			for (int i = 0; i < size; i++) {
-				result = (slotsFromDB.get(i) || slotsFromSn.get(i)); // merging slots
-				resSlotsList.add(result); // adding result slots to the result slots							
+			if (slotsFromSn == null) //checking if user wants to synchronize with SN
+				resSlotsList=slotsFromDB;
+			else {
+				boolean result; // result variable for merging slots
+				int size = slotsFromDB.size();
+				for (int i = 0; i < size; i++) {
+					result = (slotsFromDB.get(i) || slotsFromSn.get(i)); // merging slots
+					resSlotsList.add(result); // adding result slots to the result slots							
+				}
 			}
 			matt.setData(mattData);
 			matt.setSlots(resSlotsList);
@@ -312,12 +315,13 @@ public class FesBes1 implements IFesBes1 {
 	public boolean removeMatt(String mattName, String username) {
 		boolean result=false;
 		Matt resMatt = new Matt();
-			resMatt=getMatt(mattName, username);
+			//resMatt=getMatt(mattName, username);
 			if (resMatt!=null){
 				PersonEntity pe = getPEbyEmail(username);
 				Query query_delete=em.createQuery("DELETE FROM MattInfoEntity m WHERE m.name=?1 and personEntity=?2");
 				query_delete.setParameter(1, mattName);
 				query_delete.setParameter(2, pe);
+				query_delete.executeUpdate();
 				result=true;
 			}
 		return result;
