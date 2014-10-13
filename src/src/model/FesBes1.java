@@ -4,7 +4,6 @@ import java.util.*;
 
 import javax.persistence.*;
 
-import org.apache.commons.collections.functors.FalsePredicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Propagation;
@@ -100,7 +99,7 @@ public class FesBes1 implements IFesBes1 {
 		mat.Matt newMatt = null;
 		if (data != null && username != null){
 	//determine person_id by username
-		PersonEntity prs = getPersonFromDB(username);
+		PersonEntity prs = getPEbyEmail(username);
 	//checking if there is no Matt with this name for this user
 		Query query = em.createQuery("select m from MattInfoEntity m "
 				+ "where m.name = :mattName and m.personEntity= :person");
@@ -127,7 +126,7 @@ public class FesBes1 implements IFesBes1 {
 	private ArrayList<Boolean> getSlotsFromSN(MattData data, String username) {
 		ArrayList<Boolean> slots=null;
 	//get the list of SN for the user
-		PersonEntity prs = getPersonFromDB(username);
+		PersonEntity prs = getPEbyEmail(username);
 		Set<SocialNetworkEntity> snList = prs.getPersonSocialNetworks(); //PersonSocialNetworks is the field of class PersonEntity
 		
 	//if user have no selected SN building slots array with all false (i.e. free time intervals)
@@ -186,7 +185,7 @@ public class FesBes1 implements IFesBes1 {
 		boolean result = false;
 		if (mattNew != null && mattOld != null && username != null) {
 		//determine person_id by username
-			PersonEntity prs = getPersonFromDB(username);
+			PersonEntity prs = getPEbyEmail(username);
 				/*query = em.createQuery("select m from MattInfoEntity m join m.personEntity p "
 						+ "where m.name = :mattName and p.email= :username");*/
 			
@@ -278,20 +277,11 @@ public class FesBes1 implements IFesBes1 {
 		}
 		return matt;
 	}
-
-
-
-	/*getting Person from DB*/
-	private PersonEntity getPersonFromDB(String username){ 
-		Query query = em.createQuery("select p from PersonEntity p where p.email= :username"); 
-		query.setParameter("username", username);
-		return (PersonEntity) query.getSingleResult(); //	Getting person from DB		 
-	}
 		
 	
 	@Override
 	public Matt getMatt(String mattName, String username) {
-		PersonEntity person = getPersonFromDB(username);
+		PersonEntity person = getPEbyEmail(username);
 		Query query = em.createQuery("select m from MattInfoEntity m "
 				+ "where m.personEntity= :person and m.name= :mattName"); 
 		query.setParameter("person", person);
@@ -350,11 +340,11 @@ public class FesBes1 implements IFesBes1 {
 
 	@Override
 	public String[] getMattNames(String username) {
-		 PersonEntity prs = getPersonFromDB(username);
+		 PersonEntity prs = getPEbyEmail(username);
 		 String str = "Select m.name from MattInfoEntity m where m.personEntity = :user";
 		 Query query = em.createQuery(str); //sending query
 		 query.setParameter("user", prs);
-		 ArrayList<String> listOfNames = (ArrayList<String>) query.getResultList(); //getting result list
+		ArrayList<String> listOfNames = (ArrayList<String>) query.getResultList(); //getting result list
 		 String[] resultArr = new String[listOfNames.size()]; 
 		 resultArr = listOfNames.toArray(resultArr);
 		 return resultArr;
