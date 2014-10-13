@@ -1,5 +1,8 @@
 package controller;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.springframework.context.support.AbstractApplicationContext;
@@ -11,18 +14,18 @@ import mat.MattData;
 import mat.Person;
 
 public class MattTest {
-	private static final int nIterations = 2;
-	private static final int nDaysMax = 10;
+	private static final int nIterations = 1;
+	private static final int nDaysMax = 3;
 	private static final int nDaysMin = 1;
 	private static final int HOURS = 24;
 	private static final int TIME_SLOT = 60; //minutes
 	private static final int nTRUE = 5;	//create nTRUE busy slots 
-	private static final int nCHANGED_BY_USER = 3;
+	private static final int nCHANGED_BY_USER = 1;
 	private static final int nPersons = 1;
 	private static final int nNames = 1000;
-	private static final String[] networks = {"Google"}; //,"facebook","apple","vk"};
+	private static final String[] networks = {"Google", "Facebook"}; //,"facebook","apple","vk"};
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ParseException {
 		AbstractApplicationContext ctx = new FileSystemXmlApplicationContext("beans.xml");
 		IFesBes1 bes1=(IFesBes1) ctx.getBean("ifesbes1");
 		testAlexandra(bes1);
@@ -42,21 +45,29 @@ public class MattTest {
 	}
 
 
-	public static void testAlexandra(IFesBes1 bes1){
+	public static void testAlexandra(IFesBes1 bes1) throws ParseException{
 	//fill SN networks table
 	
-	//create person
-		  Person prs = new Person("name12", networks, "Emailname", null);//generatePerson();
-		  prs.setSnNames(networks);
-		  bes1.setProfile(prs);
+	/*//create person
+		  Person prs = new Person("Sasha", networks, "test1.iskatel@gmail.com", "12345"); //generatePerson();
+		  bes1.setProfile(prs);*/
+	//get Person from DB
+		Person prs = bes1.getProfile("test1.iskatel@gmail.com");
 	//generating random Matt's, invoking tested functions
-	/*	for (int i=0; i<nIterations; i++){
+		for (int i=0; i<nIterations; i++){
 		//create person
-			  Person prs = generatePerson();
+			/*  Person prs = generatePerson();
+			  prs.setSnNames(networks);
 			  bes1.setProfile(prs);
+			  String[] snNames = {"Google"};
+			  prs.setSnNames(snNames);
+			  bes1.updateProfile(prs);*/
 		//generating random Matt data
 			mat.MattData mData = generateMattData();	//randomly generating MattData
+			//MattData mData = new MattData("manual Test1", 2, new SimpleDateFormat("MM-dd-yyyy").parse("10-13-2014"), 14, 18, 60, null);
 			mat.Matt mattOld = bes1.createMatt(mData, prs.getEmail()); //creating Matt
+			System.out.println(mData.getStartDate().toString());
+			System.out.println(mData.getStartHour());
 			assert(mattOld.getData() != null);
 			assert(mattOld.getData().equals(mData));
 					
@@ -80,7 +91,7 @@ public class MattTest {
 			int size = mattNew.getSlots().size();
 			for(int j=0; j<size; j++)
 				assert(mattNew.getSlots().get(j) == testGetMatt.getSlots().get(j));
-			}*/
+			}
 }
 	
 	public static void testAnatoly(IFesBes1 bes1){
@@ -139,6 +150,9 @@ public class MattTest {
 		String name = "name " + (int)(Math.random()*nIterations*1000);
 		int nDays = (int)(Math.random()*(nDaysMax-nDaysMin)) + nDaysMin;
 		Calendar calendar = GregorianCalendar.getInstance();
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
 		calendar.add(GregorianCalendar.DATE, (int)(Math.random()*(nDaysMax-nDaysMin)) + nDaysMin);
 		int startHour = (int)(Math.random()*HOURS); //generate number between 0 and 23
 		int duration = (int)(Math.random()*(HOURS - startHour));
