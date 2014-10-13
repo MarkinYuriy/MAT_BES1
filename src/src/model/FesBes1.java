@@ -312,12 +312,12 @@ public class FesBes1 implements IFesBes1 {
 	public boolean removeMatt(String mattName, String username) {
 		boolean result=false;
 		Matt resMatt = new Matt();
-			
 			resMatt=getMatt(mattName, username);
 			if (resMatt!=null){
-				Query query_delete=em.createQuery("DELETE FROM Matt WHERE x.mattName=?1 and x.mattName=?2");
+				PersonEntity pe = getPEbyEmail(username);
+				Query query_delete=em.createQuery("DELETE FROM MattInfoEntity m WHERE m.name=?1 and personEntity=?2");
 				query_delete.setParameter(1, mattName);
-				query_delete.setParameter(2, username);
+				query_delete.setParameter(2, pe);
 				result=true;
 			}
 		return result;
@@ -395,10 +395,6 @@ public class FesBes1 implements IFesBes1 {
 	private void launchActivation(PersonEntity pe) {
 		ISendActivationMail sender = (ISendActivationMail) ctx.getBean("sender");
 		sender.sendMail(pe);
-	}
-	
-	private Set<SocialNetworkEntity> getSocialNetworksByEmail(String email){
-		return getPEbyEmail(email).getPersonSocialNetworks();
 	}
 
 }
