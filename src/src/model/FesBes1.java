@@ -266,15 +266,11 @@ public class FesBes1 implements IFesBes1 {
 			ArrayList<Boolean> slotsFromSn=getSlotsFromSN(mattData, username);
 			ArrayList<Boolean> slotsFromDB=getSlotsFromDB(entity); 
 			ArrayList<Boolean> resSlotsList = new ArrayList<Boolean>();
-			if (slotsFromSn == null) //checking if user wants to synchronize with SN
-				resSlotsList=slotsFromDB;
-			else {
-				boolean result; // result variable for merging slots
-				int size = slotsFromDB.size();
-				for (int i = 0; i < size; i++) {
-					result = (slotsFromDB.get(i) || slotsFromSn.get(i)); // merging slots
-					resSlotsList.add(result); // adding result slots to the result slots							
-				}
+			boolean result; // result variable for merging slots
+			int size = slotsFromDB.size();
+			for (int i = 0; i < size; i++) {
+				result = (slotsFromDB.get(i) || slotsFromSn.get(i)); // merging slots
+				resSlotsList.add(result); // adding result slots to the result slots							
 			}
 			matt.setData(mattData);
 			matt.setSlots(resSlotsList);
