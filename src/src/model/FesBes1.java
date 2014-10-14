@@ -131,7 +131,8 @@ public class FesBes1 implements IFesBes1 {
 		
 	//if user have no selected SN building slots array with all false (i.e. free time intervals)
 		if(snList == null || snList.isEmpty()){
-			int slotsNumber = data.getnDays() * (data.getEndHour() - data.getStartHour())*(data.getTimeSlot()/MIN_PER_HOUR); //60 - minutes in an hour.
+			int numberOfSlotsPerDay=data.getEndHour()-data.getStartHour();
+			int slotsNumber = numberOfSlotsPerDay * data.getnDays() * FesBes1.MIN_PER_HOUR/data.getTimeSlot();
 			slots = new ArrayList<Boolean>(Collections.nCopies(slotsNumber, false));
 		}
 		else { //getting slots from SN networks
