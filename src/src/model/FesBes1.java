@@ -251,7 +251,7 @@ public class FesBes1 implements IFesBes1 {
 			for(MattInfoEntity entity : mattEntities)
 				actualUserMatts.add(getMattFromMattEntity(entity, username));	
 			
-			//iBackCon.setMatCalendar(username, snNames.toArray(new String[snNames.size()]), actualUserMatts);
+			iBackCon.setMatCalendar(username, snNames.toArray(new String[snNames.size()]), actualUserMatts);
 		}
 	}
 
