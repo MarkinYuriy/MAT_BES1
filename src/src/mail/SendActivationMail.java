@@ -36,7 +36,7 @@ public class SendActivationMail extends SendAnyMail {
 		msender.send(template);
 	}
 	private String generateLink(model.PersonEntity pe) {
-		return "http://localhost:8080/MAT_FES/activate?hash="+pe.getHashCode()+"&user="+pe.getEmail();
+		return "http://localhost:8080/myavailabletime/activate?hash="+pe.getHashCode()+"&user="+pe.getEmail();
 	}
 
 }
