@@ -11,4 +11,6 @@ public interface IFesBes1 {
 	boolean removeMatt(String mattName, String username);
 	mat.Person getProfile(String username);
 	void setActive(String username,String hashcode);
+	void updateMatCalendarInSN(String username, String snName);
+	public int ifEmailExistsInDB(String email);
 }
