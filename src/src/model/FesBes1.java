@@ -87,6 +87,20 @@ public class FesBes1 implements IFesBes1 {
 					 result = Response.NO_PASSWORD_MATCHING;
 		return result; 
 	}
+	
+	@Override
+	public int ifEmailExistsInDB(String email){
+		PersonEntity pe = getPEbyEmail(email); // looking for person in database by email
+		int result;
+		if (pe != null){						//person not found
+			if (pe.isActive() == false)			//person found, but not active
+				 result = Response.IN_ACTIVE;
+			else result=Response.OK;
+		} 
+		else result = Response.NO_REGISTRATION;
+		
+		return result;
+	}
 
 	@Override
 	public Matt createMatt(MattData data, String username)  {
@@ -216,37 +230,36 @@ public class FesBes1 implements IFesBes1 {
 				}
 				mattInfo.setSlots(mattSlots);
 				em.persist(mattInfo); //saving MattInfoEntity to the DB.
-				if (em.getFlushMode() != FlushModeType.AUTO) //manually flushing the changes to DB
+				/*if (em.getFlushMode() != FlushModeType.AUTO) //manually flushing the changes to DB
 					em.flush();
 				result = true;
 			//updating Mat Calendars in SN 
 				if(snList!=null && !snList.isEmpty())
-					updateMatCalendarInSN(username, prs.getPersonSocialNetworks(), prs.getId());
+					updateMatCalendarInSN(username, prs.getPersonSocialNetworks(), prs.getId());*/
 			}
 				
 		return result;
 	}
 	
-	//updating Mat Calendars in SN
-	private void updateMatCalendarInSN(String username,
-			Set<SocialNetworkEntity> personSocialNetworks, int prsId) {
-		if (username != null && personSocialNetworks != null){
+	
+	
+	@Override
+	public void updateMatCalendarInSN(String username, String snName) { //updating Mat Calendars in SN
+		if (username != null){
+			PersonEntity prs = getPEbyEmail(username);
 		//getting String[] of SN names
 			List<String> snNames = new LinkedList<String>();
+			Set<SocialNetworkEntity> personSocialNetworks = prs.getPersonSocialNetworks();
 			for(SocialNetworkEntity SNEntity : personSocialNetworks)
 				snNames.add(SNEntity.getName());
+		
 		//building list of actual MATTs	for current user
-		// 1 - getting todays date without taking into account possible user locale settings.
-		/*	Calendar calendar = GregorianCalendar.getInstance(); 
-			DateFormat df = new SimpleDateFormat("YYYY-MM-DD");
-			String strDate = df.format(calendar.getTime());
-			Date todaysDate = df.parse(strDate);*/
-		// 2 - creating Query to select all actual for today Matt names for this user
+		// 1 - creating Query to select all actual for today Matt names for this user
 		// using native SQL for mySQL server, because JPQL currently doesn't support required DATE operations
-			Query query = em.createNativeQuery("select * from test.mattsinfo where person_id=" + prsId +
+			Query query = em.createNativeQuery("select * from test.mattsinfo where person_id=" + prs.getId() +
 					" and date_add(startDate, interval nDays day) > curdate()", MattInfoEntity.class);
 			List<MattInfoEntity> mattEntities = query.getResultList();
-		// 3 - building MATTs from MattEntities
+		// 2 - building MATTs from MattEntities
 			List<Matt> actualUserMatts = new LinkedList<Matt>();
 			for(MattInfoEntity entity : mattEntities)
 				actualUserMatts.add(getMattFromMattEntity(entity, username));	
