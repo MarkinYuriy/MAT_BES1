@@ -245,13 +245,10 @@ public class FesBes1 implements IFesBes1 {
 	
 	@Override
 	public void updateMatCalendarInSN(String username, String snName) { //updating Mat Calendars in SN
-		if (username != null){
+		if (username != null && snName != null){
 			PersonEntity prs = getPEbyEmail(username);
 		//getting String[] of SN names
-			List<String> snNames = new LinkedList<String>();
-			Set<SocialNetworkEntity> personSocialNetworks = prs.getPersonSocialNetworks();
-			for(SocialNetworkEntity SNEntity : personSocialNetworks)
-				snNames.add(SNEntity.getName());
+			String [] snNames = {snName};
 		
 		//building list of actual MATTs	for current user
 		// 1 - creating Query to select all actual for today Matt names for this user
@@ -264,7 +261,7 @@ public class FesBes1 implements IFesBes1 {
 			for(MattInfoEntity entity : mattEntities)
 				actualUserMatts.add(getMattFromMattEntity(entity, username));	
 			
-			iBackCon.setMatCalendar(username, snNames.toArray(new String[snNames.size()]), actualUserMatts);
+			iBackCon.setMatCalendar(username, snNames, actualUserMatts);
 		}
 	}
 
