@@ -201,9 +201,7 @@ public class FesBes1 implements IFesBes1 {
 		if (mattNew != null && mattOld != null && username != null) {
 		//determine person_id by username
 			PersonEntity prs = getPEbyEmail(username);
-				/*query = em.createQuery("select m from MattInfoEntity m join m.personEntity p "
-						+ "where m.name = :mattName and p.email= :username");*/
-			
+							
 		//saving to DB if newMatt name unique for the user
 				//determine which slots were selected by user, rearrange the slots into Map<Date, slot_num> 
 				Set<SocialNetworkEntity> snList = prs.getPersonSocialNetworks();
@@ -321,15 +319,17 @@ public class FesBes1 implements IFesBes1 {
 	@Override
 	public boolean removeMatt(String mattName, String username) {
 		boolean result=false;
-		Matt resMatt = new Matt();
-			//resMatt=getMatt(mattName, username);
-			if (resMatt!=null){
-				PersonEntity pe = getPEbyEmail(username);
-				Query query_delete=em.createQuery("DELETE FROM MattInfoEntity m WHERE m.name=?1 and personEntity=?2");
-				query_delete.setParameter(1, mattName);
-				query_delete.setParameter(2, pe);
-				query_delete.executeUpdate();
-				result=true;
+			if (mattName!=null && username!=null){
+				Query query = em.createQuery("select m from MattInfoEntity m join m.personEntity p "
+				+ "where m.name = :mattName and p.email= :username");
+				query.setParameter("mattName", mattName);
+				query.setParameter("username", username);
+				List<MattInfoEntity> res=query.getResultList();
+				if (res != null && !res.isEmpty()){
+					MattInfoEntity deleteRow = res.get(0);
+					em.remove(deleteRow);
+					result=true;
+				}
 			}
 		return result;
 	}

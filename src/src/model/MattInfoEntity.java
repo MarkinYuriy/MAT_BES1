@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name="MattsInfo")
@@ -17,7 +19,9 @@ public class MattInfoEntity {
 	@JoinColumn(name = "person_id")
 	PersonEntity personEntity;
 	
-	@OneToMany(mappedBy = "mattInfo", cascade = CascadeType.ALL)
+	
+	@OneToMany(targetEntity=MattSlots.class, mappedBy = "mattInfo", cascade = CascadeType.ALL, orphanRemoval=true)
+	@OnDelete(action=OnDeleteAction.CASCADE)
 	List<MattSlots> slots;
 	
 //duplicated fields from MattData class
