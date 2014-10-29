@@ -251,13 +251,29 @@ public class FesBes1 implements IFesBes1 {
 		//building list of actual MATTs	for current user
 		// 1 - creating Query to select all actual for today Matt names for this user
 		// using native SQL for mySQL server, because JPQL currently doesn't support required DATE operations
-			Query query = em.createNativeQuery("select * from test.mattsinfo where person_id=" + prs.getId() +
+			/*Query query = em.createNativeQuery("select * from test.MattsInfo where person_id=" + prs.getId() +
 					" and date_add(startDate, interval nDays day) > curdate()", MattInfoEntity.class);
-			List<MattInfoEntity> mattEntities = query.getResultList();
-		// 2 - building MATTs from MattEntities
+			List<MattInfoEntity> mattEntities = query.getResultList();*/
+		//alternative flow
+			//1. select all MATTs for the user
+			Query query = em.createQuery("select * from from MattInfoEntity m where m.personEntity= :person");
+			query.setParameter("person", prs);
+			List<MattInfoEntity> allMattEntities=query.getResultList();
 			List<Matt> actualUserMatts = new LinkedList<Matt>();
+			if(allMattEntities != null && !allMattEntities.isEmpty()){
+				Calendar today = new GregorianCalendar();
+				today = Calendar.getInstance();
+				for(MattInfoEntity entity:allMattEntities){
+					today.add(Calendar.DATE, -entity.getnDays());
+					if (entity.getStartDate().compareTo(today.getTime()) >= 0)
+						actualUserMatts.add(getMattFromMattEntity(entity, username));
+				}
+			}
+		
+		// 2 - building MATTs from MattEntities
+			/*List<Matt> actualUserMatts = new LinkedList<Matt>();
 			for(MattInfoEntity entity : mattEntities)
-				actualUserMatts.add(getMattFromMattEntity(entity, username));	
+				actualUserMatts.add(getMattFromMattEntity(entity, username));	*/
 			
 			iBackCon.setMatCalendar(username, snNames, actualUserMatts);
 		}
