@@ -256,7 +256,7 @@ public class FesBes1 implements IFesBes1 {
 			List<MattInfoEntity> mattEntities = query.getResultList();*/
 		//alternative flow
 			//1. select all MATTs for the user
-			Query query = em.createQuery("select * from from MattInfoEntity m where m.personEntity= :person");
+			Query query = em.createQuery("select m from MattInfoEntity m where m.personEntity= :person");
 			query.setParameter("person", prs);
 			List<MattInfoEntity> allMattEntities=query.getResultList();
 			List<Matt> actualUserMatts = new LinkedList<Matt>();
