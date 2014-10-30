@@ -410,12 +410,12 @@ public class FesBes1 implements IFesBes1 {
 	//****COMMON SERVING PRIVATE FUNCTIONS****
 	private PersonEntity getPEbyEmail(String email) {
 		PersonEntity result = null;
-		try {
-			Query query = em.createQuery("SELECT pe FROM PersonEntity pe WHERE pe.email=?1");
-			query.setParameter(1, email);
-			result = (PersonEntity) query.getSingleResult();
-		} catch (Exception e) {
-		}
+		List<PersonEntity> prsList=null;
+		Query query = em.createQuery("SELECT pe FROM PersonEntity pe WHERE pe.email=?1");
+		query.setParameter(1, email);
+		prsList = query.getResultList();
+		if (prsList != null && !prsList.isEmpty())
+			result=prsList.get(0);
 		return result;
 	}
 
