@@ -6,12 +6,13 @@
  <properties>
  <property name="hibernate.hbm2ddl.auto" value="update"/>
  <property name="hibernate.connection.url" 
- value="jdbc:mysql://localhost/test"/>
+ value="jdbc:mysql://myavailabletime.cejqwxdcufsf.us-east-1.rds.amazonaws.com/test"/>
  <property name="hibernate.connection.driver_class" 
  value="com.mysql.jdbc.Driver"/>
- <property name="hibernate.connection.username" value="root"/>
+ <property name="hibernate.connection.username" value="myavailabletime"/>
  <property name="hibernate.connection.password" value="12345.com"/>
  <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
  </properties>
   </persistence-unit>
 </persistence>
+
