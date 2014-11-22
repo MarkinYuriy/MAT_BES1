@@ -111,7 +111,6 @@ public int hashCode() {
 }
 
 
-
 @Override
 public boolean equals(Object obj) {
 	if (this == obj)

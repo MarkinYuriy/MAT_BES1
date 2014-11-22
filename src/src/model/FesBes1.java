@@ -371,7 +371,7 @@ public class FesBes1 implements IFesBes1 {
 		 String str = "Select m.name from MattInfoEntity m where m.personEntity = :user";
 		 Query query = em.createQuery(str); //sending query
 		 query.setParameter("user", prs);
-		ArrayList<String> listOfNames = (ArrayList<String>) query.getResultList(); //getting result list
+		 ArrayList<String> listOfNames = (ArrayList<String>) query.getResultList(); //getting result list
 		 String[] resultArr = new String[listOfNames.size()]; 
 		 resultArr = listOfNames.toArray(resultArr);
 		 return resultArr;
@@ -407,16 +407,28 @@ public class FesBes1 implements IFesBes1 {
 		}
 		return result;
 	}
+	
+	
+	@Transactional(readOnly=false, propagation=Propagation.REQUIRES_NEW)
+	public boolean deletePerson(String userName){
+		boolean result = false;
+		PersonEntity prs = getPEbyEmail(userName);
+		if (prs != null){
+			em.remove(prs);
+			result=true;
+		}
+		return result;
+	}
+	
 	//****COMMON SERVING PRIVATE FUNCTIONS****
 	private PersonEntity getPEbyEmail(String email) {
-		PersonEntity result = null;
 		List<PersonEntity> prsList=null;
 		Query query = em.createQuery("SELECT pe FROM PersonEntity pe WHERE pe.email=?1");
 		query.setParameter(1, email);
 		prsList = query.getResultList();
 		if (prsList != null && !prsList.isEmpty())
-			result=prsList.get(0);
-		return result;
+			return prsList.get(0);
+		return null;
 	}
 
 	private void launchActivation(PersonEntity pe) {
