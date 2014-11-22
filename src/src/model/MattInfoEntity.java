@@ -27,6 +27,9 @@ public class MattInfoEntity {
 	@OnDelete(action=OnDeleteAction.CASCADE)
 	List<MattSlots> slots;
 	
+	@OneToMany(targetEntity=NotificationEntity.class, mappedBy="mattInfo", cascade=CascadeType.ALL)
+	List<NotificationEntity> notifications;
+	
 //duplicated fields from MattData class
 	@Column (name="matt_name")
 	String name;//name of MATT
