@@ -4,6 +4,8 @@ import java.util.*;
 
 import javax.persistence.*;
 
+import org.hibernate.annotations.ForeignKey;
+
 import mat.Person;
 
 @Entity
@@ -20,6 +22,7 @@ public class PersonEntity {
 			@JoinColumn(name = "person_id", nullable = false) }, 
 			inverseJoinColumns = { @JoinColumn(name = "sn_id", 
 					nullable = false) })
+	@ForeignKey(name="fk_persons")
 	Set<SocialNetworkEntity> personSocialNetworks;
 	
 	String name;
@@ -32,11 +35,6 @@ public class PersonEntity {
 	List<MattInfoEntity> mattInfo;
 
 	public PersonEntity(mat.Person person){
-		/*personSocialNetworks = new ArrayList<SocialNetworkEntity>();
-		for (int i=0; i<person.getSnNames().length; i++){
-			SocialNetworkEntity sne = new SocialNetworkEntity(person.getSnNames()[i]);
-			personSocialNetworks.add(sne);
-		}*/
 		this.name = person.getName();
 		this.email = person.getEmail();
 		this.password = person.getPassword();
@@ -97,10 +95,40 @@ public Set<SocialNetworkEntity> getPersonSocialNetworks() {
 	return personSocialNetworks;
 }
 
-
-
 public void setPersonSocialNetworks(
 		Set<SocialNetworkEntity> personSocialNetworks) {
 	this.personSocialNetworks = personSocialNetworks;
 }
+
+
+
+@Override
+public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + ((email == null) ? 0 : email.hashCode());
+	return result;
+}
+
+
+
+@Override
+public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (getClass() != obj.getClass())
+		return false;
+	PersonEntity other = (PersonEntity) obj;
+	if (email == null) {
+		if (other.email != null)
+			return false;
+	} else if (!email.equals(other.email))
+		return false;
+	return true;
+}
+
+
+
 }

@@ -4,6 +4,8 @@ import java.util.*;
 
 import javax.persistence.*;
 
+import org.hibernate.annotations.ForeignKey;
+
 @Entity
 @Table(name="MattBusySlots")
 public class MattSlots {
@@ -13,6 +15,7 @@ public class MattSlots {
 	
 	@ManyToOne
 	@JoinColumn (name="matt_id")
+	@ForeignKey(name="fk_mattsinfo_mattbusyslots")
 	MattInfoEntity mattInfo;
 		
 	@Column(name = "event_date", columnDefinition="DATE")

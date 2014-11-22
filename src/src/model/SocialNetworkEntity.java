@@ -5,6 +5,8 @@ import java.util.*;
 
 import javax.persistence.*;
 
+import org.hibernate.annotations.ForeignKey;
+
 @Entity
 @Table(name="sprSocialNetworks")
 public class SocialNetworkEntity {
@@ -15,6 +17,7 @@ public class SocialNetworkEntity {
 	String name;
 	
 	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "personSocialNetworks")
+	@ForeignKey(name="fk_spr_networks")
 	Set<PersonEntity> prs;
 	
 	public SocialNetworkEntity(String name) {
@@ -49,7 +52,5 @@ public class SocialNetworkEntity {
 			return false;
 		return true;
 	}
-	
-	
 	
 }
