@@ -4,6 +4,7 @@ import java.util.*;
 
 import javax.persistence.*;
 
+import org.hibernate.ejb.criteria.expression.SizeOfCollectionExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Propagation;
@@ -434,6 +435,24 @@ public class FesBes1 implements IFesBes1 {
 	private void launchActivation(PersonEntity pe) {
 		ISendActivationMail sender = (ISendActivationMail) ctx.getBean("sender");
 		sender.sendMail(pe);
+	}
+
+	@Override
+	public List<Notification> getNotifications(String guestName) {
+		  List<NotificationEntity> notList=null;
+		  List<Notification> rt = new LinkedList<>();
+		  Query query = em.createQuery("select n from NotificationEntity n where where n.guest_email= :guestName");
+		  query.setParameter("guestName", guestName);
+		  notList = query.getResultList();
+		  if (notList != null && !notList.isEmpty())
+			for(NotificationEntity ne:notList)
+				rt.add(ne.toNotification());
+			return rt;
+	}
+	@Override
+	public void setGuests(String username, String tableName, String [] guestEmails) {
+		
+		
 	}
 
 }
