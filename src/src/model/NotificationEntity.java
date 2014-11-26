@@ -24,6 +24,13 @@ public class NotificationEntity {
 	String guest_email;
 	Boolean checked_fl=false;
 	
+	public NotificationEntity(){}
+
+	public NotificationEntity(MattInfoEntity mattinfo, String guest_email){
+		this.guest_email = guest_email;
+		this.mattInfo = mattinfo;
+	}
+	
 	public long getNote_id() {
 		return note_id;
 	}
