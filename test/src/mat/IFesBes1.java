@@ -13,4 +13,6 @@ public interface IFesBes1 {
 	void setActive(String username,String hashcode);
 	void updateMatCalendarInSN(String username, String snName);
 	public int ifEmailExistsInDB(String email);
+	void setGuests(String username, String tableName, String [] guestEmails);
+	java.util.List<mat.Notification> getNotifications(String guestName);
 }

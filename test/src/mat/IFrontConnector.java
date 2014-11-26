@@ -26,4 +26,5 @@ public interface IFrontConnector {
     boolean authorize(String username, String socialName, String authCode);
     //May throw unchecked RuntimeException. It is strongly recommended to make try/catch block.
     String[] getApplicationData(String socialName);
+    void setEvent(String eventName, int startHour, int endHour);
 }
