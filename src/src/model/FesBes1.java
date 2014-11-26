@@ -236,7 +236,7 @@ public class FesBes1 implements IFesBes1 {
 				if(snList!=null && !snList.isEmpty())
 					updateMatCalendarInSN(username, prs.getPersonSocialNetworks(), prs.getId());*/
 			}
-				
+		
 		return result;
 	}
 	
@@ -441,7 +441,7 @@ public class FesBes1 implements IFesBes1 {
 	public List<Notification> getNotifications(String guestName) {
 		  List<NotificationEntity> notList=null;
 		  List<Notification> rt = new LinkedList<>();
-		  Query query = em.createQuery("select n from NotificationEntity n where where n.guest_email= :guestName");
+		  Query query = em.createQuery("select n from NotificationEntity n where n.guest_email= :guestName");
 		  query.setParameter("guestName", guestName);
 		  notList = query.getResultList();
 		  if (notList != null && !notList.isEmpty())
@@ -449,9 +449,23 @@ public class FesBes1 implements IFesBes1 {
 				rt.add(ne.toNotification());
 			return rt;
 	}
+	
+	
 	@Override
+	@Transactional(readOnly=false, propagation=Propagation.REQUIRES_NEW)
 	public void setGuests(String username, String tableName, String [] guestEmails) {
-		
+		Query query = em.createQuery("select m from MattInfoEntity m join m.personEntity pe "
+				+ "where m.name= :matt_name and pe.email= :username");
+		query.setParameter("matt_name", tableName);
+		query.setParameter("username", username);
+		List<MattInfoEntity> mattList = query.getResultList(); 
+			if ( mattList!= null && !mattList.isEmpty()){
+				MattInfoEntity mattInfo=mattList.get(0);
+				for(int i=0;i<guestEmails.length;i++){
+					NotificationEntity notification = new NotificationEntity(mattInfo, guestEmails[i]);
+					em.persist(notification);
+				}
+			}
 		
 	}
 
