@@ -2,8 +2,6 @@ package model;
 
 import javax.persistence.*;
 
-import mat.Notification;
-
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
@@ -22,6 +20,7 @@ public class NotificationEntity {
 	
 	@Index(name="ind_usr_email")
 	String guest_email;
+	
 	Boolean checked_fl=false;
 	
 	public NotificationEntity(){}
@@ -56,12 +55,5 @@ public class NotificationEntity {
 		this.checked_fl = checked_fl;
 	}
 	
-	public mat.Notification toNotification(){
-		return  
-			new mat.Notification(this.getGuest_email(), this.getMattInfo().getName()); 
-	}
 	
-	
-	
-
 }
