@@ -439,16 +439,18 @@ public class FesBes1 implements IFesBes1 {
 
 	@Override
 	public List<Notification> getNotifications(String guestName) {
-		  List<NotificationEntity> notList=null;
-		  List<Notification> rt = new LinkedList<>();
-		  Query query = em.createQuery("select n from NotificationEntity n where n.guest_email= :guestName");
-		  query.setParameter("guestName", guestName);
-		  notList = query.getResultList();
-		  if (notList != null && !notList.isEmpty())
-			for(NotificationEntity ne:notList)
-				rt.add(ne.toNotification());
-			return rt;
-	}
+	    List<NotificationEntity> notList=null;
+	    List<Notification> rt = new LinkedList<>();
+	    Query query = em.createQuery("select n from NotificationEntity n where n.guest_email= :guestName");
+	    query.setParameter("guestName", guestName);
+	    notList = query.getResultList();
+	    if (notList != null && !notList.isEmpty())
+	   for(NotificationEntity ne:notList){
+	    rt.add(new mat.Notification(ne.getMattInfo().getPersonEntity().getEmail(),
+	      ne.getMattInfo().getName()));
+	   }
+	   return rt;
+	 }
 	
 	
 	@Override
