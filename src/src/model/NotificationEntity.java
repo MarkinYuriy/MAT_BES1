@@ -6,7 +6,7 @@ import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
 @Entity
-@Table(name="Notifications")
+@Table(name="notifications")
 public class NotificationEntity {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)

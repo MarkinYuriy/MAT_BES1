@@ -7,7 +7,7 @@ import javax.persistence.*;
 import org.hibernate.annotations.ForeignKey;
 
 @Entity
-@Table(name="MattBusySlots")
+@Table(name="matt_busy_slots")
 public class MattSlots {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -44,9 +44,4 @@ public class MattSlots {
 		return slot_number;
 	}
 	
-	
-	
-	
-		
-
 }

@@ -10,20 +10,20 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table(name="MattsInfo")
+@Table(name="matt_info")
 public class MattInfoEntity {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "matt_id")
 	int matt_id;
 	
-	@ManyToOne (fetch=FetchType.LAZY) /*(targetEntity = PersonEntity.class)*/
+	@ManyToOne (fetch=FetchType.LAZY)
 	@JoinColumn(name = "person_id")
 	@ForeignKey(name = "fk_mattsinfo_person_id")
 	PersonEntity personEntity;
 	
 	
-	@OneToMany(targetEntity=MattSlots.class, mappedBy = "mattInfo", cascade = CascadeType.ALL, orphanRemoval=true)
+	@OneToMany(targetEntity=MattSlots.class, mappedBy = "mattInfo", cascade = CascadeType.ALL/*, orphanRemoval=true*/)
 	@OnDelete(action=OnDeleteAction.CASCADE)
 	List<MattSlots> slots;
 	

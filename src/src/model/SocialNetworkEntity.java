@@ -8,7 +8,7 @@ import javax.persistence.*;
 import org.hibernate.annotations.ForeignKey;
 
 @Entity
-@Table(name="sprSocialNetworks")
+@Table(name="social_networks")
 public class SocialNetworkEntity {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
