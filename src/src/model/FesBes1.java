@@ -47,7 +47,7 @@ public class FesBes1 implements IFesBes1 {
 		return result;
 	}
 
-//populating user SN list
+//populating user SN list ***********not in usage from 9.12.2014*********
 	@SuppressWarnings("unchecked")
 	@Transactional (readOnly=false, propagation=Propagation.REQUIRED)
 	private Set<SocialNetworkEntity> getSocialNetworks(String[] snNames) {
@@ -399,8 +399,8 @@ public class FesBes1 implements IFesBes1 {
 			PersonEntity pe = getPEbyEmail(email);
 			result = Response.NO_REGISTRATION;
 			if (pe != null) {
-				Set<SocialNetworkEntity> personSocialNetworks = getSocialNetworks(person.getSnNames());
-				pe.setPersonSocialNetworks(personSocialNetworks);
+				pe.setName(person.getName());
+				pe.setPassword(person.getPassword());
 				result = Response.OK;
 			}
 		}
