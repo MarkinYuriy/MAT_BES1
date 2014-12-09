@@ -33,8 +33,6 @@ public class FesBes1 implements IFesBes1 {
 			PersonEntity currentPE = getPEbyEmail(person.getEmail()); //currentPE is a personEntity with considered email from database
 			if (currentPE == null) {								//currentPE not exists
 				currentPE = new PersonEntity(person);
-				Set<SocialNetworkEntity> personSocialNetworks = getSocialNetworks(person.getSnNames());
-				currentPE.setPersonSocialNetworks(personSocialNetworks);	//setting user SN
 				currentPE.setHashCode(UUID.randomUUID().toString());		//create unique confirmation code for person
 				em.persist(currentPE);  
 				launchActivation(currentPE);								//launch activate mechanism
