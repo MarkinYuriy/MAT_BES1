@@ -1,4 +1,4 @@
-use test;
+use test1;
 ALTER TABLE matt_info DROP FOREIGN KEY fk_mattsinfo_person_id;
 ALTER TABLE matt_info ADD CONSTRAINT fk_mattsinfo_person_id FOREIGN KEY (person_id) REFERENCES persons (person_id) ON DELETE CASCADE;
 ALTER TABLE matt_busy_slots DROP FOREIGN KEY fk_mattsinfo_mattbusyslots;
@@ -9,3 +9,7 @@ ALTER TABLE persons_sn DROP FOREIGN KEY fk_spr_networks;
 ALTER TABLE persons_sn ADD CONSTRAINT fk_spr_networks  FOREIGN KEY (sn_id) REFERENCES social_networks (sn_id)  ON DELETE CASCADE;
 ALTER TABLE notifications DROP FOREIGN KEY fk_mattsinfo_notifications;
 ALTER TABLE notifications ADD CONSTRAINT fk_mattsinfo_notifications  FOREIGN KEY (matt_id) REFERENCES matt_info (matt_id)  ON DELETE CASCADE;
+ALTER TABLE sn_calendars DROP FOREIGN KEY fk_matt_info_sn_calendar;
+ALTER TABLE sn_calendars ADD CONSTRAINT fk_matt_info_sn_calendar  FOREIGN KEY (matt_id) REFERENCES matt_info (matt_id)  ON DELETE CASCADE;
+ALTER TABLE sn_calendars DROP FOREIGN KEY fk_sn_sn_calendar;
+ALTER TABLE sn_calendars ADD CONSTRAINT fk_sn_sn_calendar  FOREIGN KEY (sn_id) REFERENCES social_networks (sn_id)  ON DELETE CASCADE;

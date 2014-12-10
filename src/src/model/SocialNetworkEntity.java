@@ -20,11 +20,16 @@ public class SocialNetworkEntity {
 	@ForeignKey(name="fk_spr_networks")
 	Set<PersonEntity> prs;
 	
+//	reference to sn_calendars table
+	@OneToMany(targetEntity=SnCalendarsEntity.class, mappedBy="social_net", cascade=CascadeType.ALL)
+	List<SnCalendarsEntity> sn_calendars;
+	
 	public SocialNetworkEntity(String name) {
 		super();
 		this.name = name;
 	}
 	public int getId() {return id;}
+	
 	public String getName() {return name;}
 	
 	public SocialNetworkEntity() {}
@@ -51,6 +56,12 @@ public class SocialNetworkEntity {
 		} else if (!name.equals(other.name))
 			return false;
 		return true;
+	}
+	public List<SnCalendarsEntity> getSn_calendars() {
+		return sn_calendars;
+	}
+	public void setSn_calendars(List<SnCalendarsEntity> sn_calendars) {
+		this.sn_calendars = sn_calendars;
 	}
 	
 }

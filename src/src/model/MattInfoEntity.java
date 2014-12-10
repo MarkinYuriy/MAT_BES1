@@ -1,6 +1,7 @@
 package model;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.*;
@@ -41,7 +42,11 @@ public class MattInfoEntity {
 	int startHour;
 	int endHour;
 	int timeSlot; //in minutes
-	
+
+//storing upload-download to SN Calendar properties
+	@OneToMany(targetEntity=SnCalendarsEntity.class, mappedBy="mattInfo", cascade=CascadeType.ALL)
+	List<SnCalendarsEntity> sncalendars;
+		
 	public MattInfoEntity(String name, String password, int nDays, Date startDate, 
 				int startHour, int endHour, int timeSlot, PersonEntity personEntity) {
 		this.name = name;
@@ -134,6 +139,14 @@ public class MattInfoEntity {
 		} else if (!personEntity.equals(other.personEntity))
 			return false;
 		return true;
+	}
+
+	public List<SnCalendarsEntity> getSncalendars() {
+		return sncalendars;
+	}
+
+	public void setSncalendars(List<SnCalendarsEntity> sncalendars) {
+		this.sncalendars = sncalendars;
 	}
 	
 	
