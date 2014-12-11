@@ -16,15 +16,6 @@ public class PersonEntity {
 	@Column(name="person_id")
 	int id;
 	
-//	@ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinTable(name = "persons_sn", joinColumns = { 
-			@JoinColumn(name = "person_id", nullable = false) }, 
-			inverseJoinColumns = { @JoinColumn(name = "sn_id", 
-					nullable = false) })
-	@ForeignKey(name="fk_persons")
-	Set<SocialNetworkEntity> personSocialNetworks;
-	
 	String name;
 	String email;//the same as username
 	String password;
@@ -39,6 +30,7 @@ public class PersonEntity {
 		this.name = person.getName();
 		this.email = person.getEmail();
 		this.password = person.getPassword();
+		//this.timeZone=person.getTimeZone();
 		this.isActive = false;
 	}
 	
@@ -73,33 +65,15 @@ public class PersonEntity {
 		this.hashCode = hashCode;
 	}
 	
-	public Person toPerson(){
-		/*String [] snNames = new String[personSocialNetworks.size()];
-		int i=0;
-		for (SocialNetworkEntity sn : personSocialNetworks){
-			snNames[i] = sn.getName();
-			i++;
-		}*/
-		return new Person(name, email, password);
-	}
+	
 	public String getName() {
 		return name;
 	}
+	
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	
-	public Set<SocialNetworkEntity> getPersonSocialNetworks() {
-		return personSocialNetworks;
-	}
-	
-	public void setPersonSocialNetworks(
-			Set<SocialNetworkEntity> personSocialNetworks) {
-		this.personSocialNetworks = personSocialNetworks;
-	}
-	
-	
+		
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -107,7 +81,6 @@ public class PersonEntity {
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
 		return result;
 	}
-	
 	
 	@Override
 	public boolean equals(Object obj) {
@@ -125,7 +98,22 @@ public class PersonEntity {
 			return false;
 		return true;
 	}
-	
 
+	public int getTimeZone() {
+		return timeZone;
+	}
+
+	public void setTimeZone(int timeZone) {
+		this.timeZone = timeZone;
+	}
+	
+//	@ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+/*	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinTable(name = "persons_sn", joinColumns = { 
+			@JoinColumn(name = "person_id", nullable = false) }, 
+			inverseJoinColumns = { @JoinColumn(name = "sn_id", 
+					nullable = false) })
+	@ForeignKey(name="fk_persons")
+	Set<SocialNetworkEntity> personSocialNetworks;*/
 
 }

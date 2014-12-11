@@ -2,10 +2,7 @@ package model;
 
 
 import java.util.*;
-
 import javax.persistence.*;
-
-import org.hibernate.annotations.ForeignKey;
 
 @Entity
 @Table(name="social_networks")
@@ -15,10 +12,6 @@ public class SocialNetworkEntity {
 	@Column(name="sn_id", unique = true, nullable = false)
 	int id;	
 	String name;
-	
-	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "personSocialNetworks")
-	@ForeignKey(name="fk_spr_networks")
-	Set<PersonEntity> prs;
 	
 //	reference to sn_calendars table
 	@OneToMany(targetEntity=SnCalendarsEntity.class, mappedBy="social_net", cascade=CascadeType.ALL)
@@ -63,5 +56,9 @@ public class SocialNetworkEntity {
 	public void setSn_calendars(List<SnCalendarsEntity> sn_calendars) {
 		this.sn_calendars = sn_calendars;
 	}
+	
+	/*	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "personSocialNetworks")
+	@ForeignKey(name="fk_spr_networks")
+	Set<PersonEntity> prs;*/
 	
 }
