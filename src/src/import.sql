@@ -1,4 +1,4 @@
-use test1;
+use test;
 ALTER TABLE matt_info DROP FOREIGN KEY fk_mattsinfo_person_id;
 ALTER TABLE matt_info ADD CONSTRAINT fk_mattsinfo_person_id FOREIGN KEY (person_id) REFERENCES persons (person_id) ON DELETE CASCADE;
 ALTER TABLE matt_busy_slots DROP FOREIGN KEY fk_mattsinfo_mattbusyslots;

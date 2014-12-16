@@ -23,17 +23,46 @@
 <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
 <property name="mappings" value="/bes1_service.service=burlapBes1Service"/>
 </bean>
+<!-- ************** -->
 <!-- Components for the Hibernate -->
-<bean id="emf"
-     class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean">
-  <property name="persistenceUnitName" value="springHibernate" />
+<bean id="em"
+     class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+  <property name="dataSource" ref="myDataSource" />
+  <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+        </property>
+        <property name="packagesToScan" value="model"></property>
+        <property name="jpaProperties">
+            <props>
+                <prop key="hibernate.hbm2ddl.auto">create</prop>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+                <prop key="hibernate.hbm2ddl.import_files">import.sql</prop>
+                <prop key="hibernate.show_sql">true</prop>
+            </props>
+        </property>
+  <!-- <property name="persistenceUnitName" value="springHibernate" /> -->
 </bean>
+
+<bean id="myDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+<!-- Connection properties -->
+        <property name="driverClass" value="com.mysql.jdbc.Driver" />
+        <property name="jdbcUrl" value="jdbc:mysql://myavailabletime.cejqwxdcufsf.us-east-1.rds.amazonaws.com/test" />
+        <property name="user" value="myavailabletime" />
+        <property name="password" value="12345.com" />
+<!-- Pool properties -->
+        <property name="minPoolSize" value="5" />
+        <property name="maxPoolSize" value="20" />
+        <property name="maxStatements" value="50" />
+        <property name="idleConnectionTestPeriod" value="3000" />
+        <property name="loginTimeout" value="300" />
+    </bean>
+
 <bean 
 class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" 
 />
 <tx:annotation-driven transaction-manager="transactionManager"/>
 <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-    <property name="entityManagerFactory" ref="emf"/>
+    <property name="entityManagerFactory" ref="em"/>
 </bean>
 <!-- ********** -->
 
