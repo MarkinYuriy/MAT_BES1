@@ -297,28 +297,16 @@ public class FesBes1 implements IFesBes1 {
 
 	private Matt getMattFromMattEntity(MattInfoEntity entity, String username) {
 		Matt matt = new Matt();
-		if (entity != null){
-			MattData mattData = new MattData(entity.getName(), entity.getnDays(), entity.getStartDate(), 
+		MattData mattData = new MattData(entity.getName(), entity.getnDays(), entity.getStartDate(), 
 					entity.getStartHour(), entity.getEndHour(), entity.getTimeSlot(), entity.getPassword());
-			
-			ArrayList<Boolean> slotsFromSn=getSlotsFromSN(mattData, username);
-			ArrayList<Boolean> slotsFromDB=getSlotsFromDB(entity); 
-			ArrayList<Boolean> resSlotsList = new ArrayList<Boolean>();
-			boolean result; // result variable for merging slots
-			int size = slotsFromDB.size();
-			for (int i = 0; i < size; i++) {
-				result = (slotsFromDB.get(i) || slotsFromSn.get(i)); // merging slots
-				resSlotsList.add(result); // adding result slots to the result slots							
-			}
 			matt.setData(mattData);
-			matt.setSlots(resSlotsList);
-		}
-		return matt;
+			matt.setSlots(getSlotsFromDB(entity));
+		return (entity.getSncalendars() != null && !entity.getSncalendars().isEmpty()) ?
+				   iBackCon.getSlots(entity.getPersonEntity().getEmail(), matt) : matt;
 	}
 		
 	
-	//@Override
-	// TODO
+	@Override
 	public Matt getMatt(int matt_id) {
 		MattInfoEntity entity = em.find(MattInfoEntity.class, matt_id); //looking for mattEntity by ID
 		//getting username from the entity and invoking getMattFromMattEntity() if MattEntity was found
@@ -373,15 +361,16 @@ public class FesBes1 implements IFesBes1 {
 
 
 	@Override
-	public String[] getMattNames(String username) {
-		 PersonEntity prs = getPEbyEmail(username);
-		 String str = "Select m.name from MattInfoEntity m where m.personEntity = :user";
+	public HashMap<Integer, String> getMattNames(String username) {
+		HashMap<Integer, String> result=new HashMap<Integer, String>(); 
+		PersonEntity prs = getPEbyEmail(username);
+		 String str = "Select m from MattInfoEntity m where m.personEntity = :user";
 		 Query query = em.createQuery(str); //sending query
 		 query.setParameter("user", prs);
-		 ArrayList<String> listOfNames = (ArrayList<String>) query.getResultList(); //getting result list
-		 String[] resultArr = new String[listOfNames.size()]; 
-		 resultArr = listOfNames.toArray(resultArr);
-		 return resultArr;
+		 ArrayList<MattInfoEntity> listOfMats = (ArrayList<MattInfoEntity>) (query.getResultList()); //getting result list
+		 for(MattInfoEntity entity:listOfMats)
+		 		result.put(entity.getMatt_id(),entity.getName());
+		 return result;
 	}
 
 	@Override
@@ -443,22 +432,21 @@ public class FesBes1 implements IFesBes1 {
 	}
 
 	@Override
-	public List<Notification> getNotifications(String guestName) {
+	public List<Integer> getNotifications(String guestName) {
 	    List<NotificationEntity> noteList=null;
-	    List<Notification> rt = new LinkedList<>();
+	    List<Integer> rt = new LinkedList<>();
 	    Query query = em.createQuery("select n from NotificationEntity n where n.guest_email= :guestName");
 	    query.setParameter("guestName", guestName);
 	    noteList = query.getResultList();
 	    if (noteList != null && !noteList.isEmpty())
-	   for(NotificationEntity ne:noteList){
-	    rt.add(new mat.Notification(ne.getMattInfo().getPersonEntity().getEmail(),
-	      ne.getMattInfo().getName()));
-	   }
+	    for(NotificationEntity ne:noteList){
+	    	rt.add(ne.getMattInfo().getMatt_id());
+	   	   }
 	   return rt;
 	 }
 	
 	
-	//@Override
+	@Override
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRES_NEW)
 	public void setGuests(int matt_id, String [] guestEmails) {
 		MattInfoEntity mattInfo = em.find(MattInfoEntity.class, matt_id);
@@ -471,11 +459,7 @@ public class FesBes1 implements IFesBes1 {
 		
 	}
 
-	@Override
-	public HashMap<Integer, String> getMattNames(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 
 	
 }
