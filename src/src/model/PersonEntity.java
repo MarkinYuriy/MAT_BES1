@@ -30,7 +30,7 @@ public class PersonEntity {
 		this.name = person.getName();
 		this.email = person.getEmail();
 		this.password = person.getPassword();
-		//this.timeZone=person.getTimeZone();
+		this.timeZone=person.getTimeZone();
 		this.isActive = false;
 	}
 	

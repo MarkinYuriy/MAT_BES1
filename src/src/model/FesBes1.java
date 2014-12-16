@@ -4,7 +4,6 @@ import java.util.*;
 
 import javax.persistence.*;
 
-import org.hibernate.ejb.criteria.expression.SizeOfCollectionExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Propagation;
@@ -16,7 +15,8 @@ import mat.*;
 public class FesBes1 implements IFesBes1 {
 	static final int MIN_PER_HOUR=60;
 	
-	@PersistenceContext(unitName = "springHibernate", type = PersistenceContextType.EXTENDED)
+	//@PersistenceContext(unitName = "springHibernate", type = PersistenceContextType.EXTENDED)
+	@PersistenceContext
 	EntityManager em;
 
 	@Autowired
@@ -101,7 +101,7 @@ public class FesBes1 implements IFesBes1 {
 		return result;
 	}
 
-	@Override
+	//@Override
 	public Matt createMatt(MattData data, String username)  {
 		/*
 		 * using service IBes1Bes2, described in file beans.xml bean
@@ -134,12 +134,14 @@ public class FesBes1 implements IFesBes1 {
 		return newMatt;
 	}
 	
+	
 	/* getting list of user Social Networks, 
 	   invoking getSlots() function to get Boolean ArrayList of free/busy intervals.*/
 	private ArrayList<Boolean> getSlotsFromSN(MattData data, String username) {
 		ArrayList<Boolean> slots=null;
 	//get the list of SN for the user
-		PersonEntity prs = getPEbyEmail(username);
+	/*	PersonEntity prs = getPEbyEmail(username);
+		// TODO
 		Set<SocialNetworkEntity> snList = prs.getPersonSocialNetworks(); //PersonSocialNetworks is the field of class PersonEntity
 		
 	//if user have no selected SN building slots array with all false (i.e. free time intervals)
@@ -152,8 +154,9 @@ public class FesBes1 implements IFesBes1 {
 			List<String> snNames = new LinkedList<String>();
 			for (SocialNetworkEntity sn: snList)
 				snNames.add(sn.getName());
-			slots = (ArrayList<Boolean>)iBackCon.getSlots(prs.getEmail(), snNames.toArray(new String[snNames.size()]), data); //prs.getEmail() = username
-					}
+			//TODO
+			//slots = (ArrayList<Boolean>)iBackCon.getSlots(prs.getEmail(), snNames.toArray(new String[snNames.size()]), data); //prs.getEmail() = username
+					}*/
 		return slots;
 	}
 
@@ -192,24 +195,24 @@ public class FesBes1 implements IFesBes1 {
 		
 		return result;
 	}
+	
+	
+	
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	@Override
-	public boolean saveMatt(Matt mattOld, Matt mattNew, String username) {
-		boolean result = false;
-		if (mattNew != null && mattOld != null && username != null) {
-		//determine person_id by username
-			PersonEntity prs = getPEbyEmail(username);
-							
+	public int saveMatt(Matt mattNew, String username) {
+		int result;
+		if (mattNew != null && username != null) {
+			if (checkIfMattIsAlreadyExists(mattNew, username)){ 
+				//if true - the Matt is exists in DB and we should perform updating of existing Matt.
+				//otherwise (if false) - saving New Matt
+				result=mattNew.getData().getMattId();
+				
+			}
+			else {
 		//saving to DB if newMatt name unique for the user
-				//determine which slots were selected by user, rearrange the slots into Map<Date, slot_num> 
-				Set<SocialNetworkEntity> snList = prs.getPersonSocialNetworks();
-				ArrayList<Boolean> user_slots;
-				if(snList!=null && !snList.isEmpty())
-					user_slots = compareSlotMarks(mattOld.getSlots(), mattNew.getSlots());
-				else 
-					user_slots = mattNew.getSlots();
-				Map<Date, LinkedList<Integer> > boolSlots_toSlotNums = slotsBoolToMap(user_slots, mattNew.getData());
+				Map<Date, LinkedList<Integer> > boolSlots_toSlotNums = slotsBoolToMap(mattNew.getSlots(), mattNew.getData());
 			//creating MattInfoEntity
 				MattData data = mattNew.getData();
 				MattInfoEntity mattInfo = new MattInfoEntity(data.getName(), data.getPassword(), 
@@ -240,6 +243,18 @@ public class FesBes1 implements IFesBes1 {
 	
 	
 	
+	private boolean checkIfMattIsAlreadyExists(Matt mattNew, String username) {
+		//determine person_id by username
+			PersonEntity prs = getPEbyEmail(username);
+		//checking if there is no Matt with this name for this user
+			Query query = em.createQuery("select m from MattInfoEntity m "
+					+ "where m.name = :mattName and m.personEntity= :person");
+			query.setParameter("mattName", mattNew.getData().getName());
+			query.setParameter("person", prs);
+			int isMattNameDuplicated = query.getResultList().size();
+		return isMattNameDuplicated!=0 ? true : false;
+	}
+
 	@Override
 	public void updateMatCalendarInSN(String username, String snName) { //updating Mat Calendars in SN
 		if (username != null && snName != null){
@@ -274,7 +289,7 @@ public class FesBes1 implements IFesBes1 {
 			for(MattInfoEntity entity : mattEntities)
 				actualUserMatts.add(getMattFromMattEntity(entity, username));	*/
 			
-			iBackCon.setMatCalendar(username, snNames, actualUserMatts);
+			//iBackCon.setMatCalendar(username, snNames, actualUserMatts);
 		}
 	}
 
@@ -302,17 +317,17 @@ public class FesBes1 implements IFesBes1 {
 	}
 		
 	
-	@Override
-	public Matt getMatt(String mattName, String username) {
-		PersonEntity person = getPEbyEmail(username);
-		Query query = em.createQuery("select m from MattInfoEntity m "
-				+ "where m.personEntity= :person and m.name= :mattName"); 
-		query.setParameter("person", person);
-		query.setParameter("mattName", mattName);
-		MattInfoEntity entity = (MattInfoEntity) query.getSingleResult();
-		
-		return getMattFromMattEntity(entity, username);
+	//@Override
+	// TODO
+	public Matt getMatt(int matt_id) {
+		MattInfoEntity entity = em.find(MattInfoEntity.class, matt_id); //looking for mattEntity by ID
+		//getting username from the entity and invoking getMattFromMattEntity() if MattEntity was found
+		//returning null if MattEntity doesn't exists
+		return (entity != null) ? 
+				getMattFromMattEntity(entity, entity.getPersonEntity().getEmail()) : null; 
 	}
+	
+	
 	
 	private ArrayList<Boolean> getSlotsFromDB(MattInfoEntity mattEntity) {
 	//determining number of slots and creating Boolean list with all slots marked as false.
@@ -332,20 +347,13 @@ public class FesBes1 implements IFesBes1 {
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	@Override
-	public boolean removeMatt(String mattName, String username) {
+	public boolean removeMatt(int matt_id) {
 		boolean result=false;
-			if (mattName!=null && username!=null){
-				Query query = em.createQuery("select m from MattInfoEntity m join m.personEntity p "
-				+ "where m.name = :mattName and p.email= :username");
-				query.setParameter("mattName", mattName);
-				query.setParameter("username", username);
-				List<MattInfoEntity> res=query.getResultList();
-				if (res != null && !res.isEmpty()){
-					MattInfoEntity deleteRow = res.get(0);
-					em.remove(deleteRow);
-					result=true;
-				}
-			}
+		MattInfoEntity deleteRow = em.find(MattInfoEntity.class, matt_id);
+		if (deleteRow != null){
+			em.remove(deleteRow);
+			result=true;
+		}		
 		return result;
 	}
 
@@ -379,7 +387,7 @@ public class FesBes1 implements IFesBes1 {
 	@Override
 	public Person getProfile(String email) {
 		PersonEntity pe = getPEbyEmail(email);
-		return pe.toPerson();
+		return new Person(pe.getName(), pe.getEmail(), pe.getPassword(), pe.getTimeZone());
 	}
 
 	@Override
@@ -400,7 +408,7 @@ public class FesBes1 implements IFesBes1 {
 			result = Response.NO_REGISTRATION;
 			if (pe != null) {
 				pe.setName(person.getName());
-				pe.setPassword(person.getPassword());
+				pe.setTimeZone(person.getTimeZone());	
 				result = Response.OK;
 			}
 		}
@@ -421,10 +429,9 @@ public class FesBes1 implements IFesBes1 {
 	
 	//****COMMON SERVING PRIVATE FUNCTIONS****
 	private PersonEntity getPEbyEmail(String email) {
-		List<PersonEntity> prsList=null;
 		Query query = em.createQuery("SELECT pe FROM PersonEntity pe WHERE pe.email=?1");
 		query.setParameter(1, email);
-		prsList = query.getResultList();
+		List<PersonEntity> prsList = query.getResultList();
 		if (prsList != null && !prsList.isEmpty())
 			return prsList.get(0);
 		return null;
@@ -437,13 +444,13 @@ public class FesBes1 implements IFesBes1 {
 
 	@Override
 	public List<Notification> getNotifications(String guestName) {
-	    List<NotificationEntity> notList=null;
+	    List<NotificationEntity> noteList=null;
 	    List<Notification> rt = new LinkedList<>();
 	    Query query = em.createQuery("select n from NotificationEntity n where n.guest_email= :guestName");
 	    query.setParameter("guestName", guestName);
-	    notList = query.getResultList();
-	    if (notList != null && !notList.isEmpty())
-	   for(NotificationEntity ne:notList){
+	    noteList = query.getResultList();
+	    if (noteList != null && !noteList.isEmpty())
+	   for(NotificationEntity ne:noteList){
 	    rt.add(new mat.Notification(ne.getMattInfo().getPersonEntity().getEmail(),
 	      ne.getMattInfo().getName()));
 	   }
@@ -451,16 +458,11 @@ public class FesBes1 implements IFesBes1 {
 	 }
 	
 	
-	@Override
+	//@Override
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRES_NEW)
-	public void setGuests(String username, String tableName, String [] guestEmails) {
-		Query query = em.createQuery("select m from MattInfoEntity m join m.personEntity pe "
-				+ "where m.name= :matt_name and pe.email= :username");
-		query.setParameter("matt_name", tableName);
-		query.setParameter("username", username);
-		List<MattInfoEntity> mattList = query.getResultList(); 
-			if ( mattList!= null && !mattList.isEmpty()){
-				MattInfoEntity mattInfo=mattList.get(0);
+	public void setGuests(int matt_id, String [] guestEmails) {
+		MattInfoEntity mattInfo = em.find(MattInfoEntity.class, matt_id);
+			if ( mattInfo!= null){
 				for(int i=0;i<guestEmails.length;i++){
 					NotificationEntity notification = new NotificationEntity(mattInfo, guestEmails[i]);
 					em.persist(notification);
@@ -469,4 +471,11 @@ public class FesBes1 implements IFesBes1 {
 		
 	}
 
+	@Override
+	public HashMap<Integer, String> getMattNames(String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
 }
