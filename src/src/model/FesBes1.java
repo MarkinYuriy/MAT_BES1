@@ -202,12 +202,13 @@ public class FesBes1 implements IFesBes1 {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	@Override
 	public int saveMatt(Matt mattNew, String username) {
-		int result;
+		int result=0;
 		if (mattNew != null && username != null) {
 			if (checkIfMattIsAlreadyExists(mattNew, username)){ 
 				//if true - the Matt is exists in DB and we should perform updating of existing Matt.
 				//otherwise (if false) - saving New Matt
 				result=mattNew.getData().getMattId();
+				MattInfoEntity entity = em.find(MattInfoEntity.class, result);	
 				
 			}
 			else {
@@ -217,7 +218,7 @@ public class FesBes1 implements IFesBes1 {
 				MattData data = mattNew.getData();
 				MattInfoEntity mattInfo = new MattInfoEntity(data.getName(), data.getPassword(), 
 						data.getnDays(), data.getStartDate(), data.getStartHour(), 
-						data.getEndHour(), data.getTimeSlot(), prs);
+						data.getEndHour(), data.getTimeSlot(), getPEbyEmail(username));
 				List<MattSlots> mattSlots = new ArrayList<MattSlots>();
 				if (!boolSlots_toSlotNums.isEmpty()){ //Map isEmpty if no user selection
 					for(Map.Entry<Date, LinkedList<Integer>> entry: boolSlots_toSlotNums.entrySet()){
@@ -229,14 +230,11 @@ public class FesBes1 implements IFesBes1 {
 					}
 				}
 				mattInfo.setSlots(mattSlots);
-				em.persist(mattInfo); //saving MattInfoEntity to the DB.
-				/*if (em.getFlushMode() != FlushModeType.AUTO) //manually flushing the changes to DB
-					em.flush();
-				result = true;
-			//updating Mat Calendars in SN 
-				if(snList!=null && !snList.isEmpty())
-					updateMatCalendarInSN(username, prs.getPersonSocialNetworks(), prs.getId());*/
+				em.persist(mattInfo);
+				result=mattInfo.getMatt_id();
+				System.out.println(result);
 			}
+		}
 		
 		return result;
 	}
@@ -311,6 +309,7 @@ public class FesBes1 implements IFesBes1 {
 		MattInfoEntity entity = em.find(MattInfoEntity.class, matt_id); //looking for mattEntity by ID
 		//getting username from the entity and invoking getMattFromMattEntity() if MattEntity was found
 		//returning null if MattEntity doesn't exists
+		System.out.println(entity.getName());
 		return (entity != null) ? 
 				getMattFromMattEntity(entity, entity.getPersonEntity().getEmail()) : null; 
 	}
