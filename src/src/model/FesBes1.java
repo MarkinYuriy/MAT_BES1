@@ -447,7 +447,7 @@ public class FesBes1 implements IFesBes1 {
 	
 	@Override
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRES_NEW)
-	public void setGuests(int matt_id, String [] guestEmails) {
+	public boolean setGuests(int matt_id, String [] guestEmails) {
 		MattInfoEntity mattInfo = em.find(MattInfoEntity.class, matt_id);
 			if ( mattInfo!= null){
 				for(int i=0;i<guestEmails.length;i++){
@@ -455,6 +455,7 @@ public class FesBes1 implements IFesBes1 {
 					em.persist(notification);
 				}
 			}
+			return false;
 		
 	}
 
