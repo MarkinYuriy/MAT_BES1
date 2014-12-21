@@ -170,7 +170,7 @@ public class FesBes1 implements IFesBes1 {
 			Calendar calendar = new GregorianCalendar();
 			if (numberOfSlotsPerDay > 0){
 				for (int i=0; i<size; i++){
-					if(slots.get(i).booleanValue()){ //returns true if slot value is true i.e. busy.
+					if(!slots.get(i).booleanValue()){ //returns false if slot value is true i.e. busy.
 						int dayNumber = i/numberOfSlotsPerDay; //because division returns the number of past days
 					    if(!dates.containsKey(dayNumber)){
 					    	calendar.setTime(data.getStartDate());
@@ -204,7 +204,9 @@ public class FesBes1 implements IFesBes1 {
 	public int saveMatt(Matt mattNew, String username) {
 		int result=0;
 		if (mattNew != null && username != null) {
-			if (checkIfMattIsAlreadyExists(mattNew, username)){ 
+			//determine person_id by username
+			PersonEntity prs = getPEbyEmail(username);
+			if (checkIfMattIsAlreadyExists(mattNew, prs)){ 
 				//if true - the Matt is exists in DB and we should perform updating of existing Matt.
 				//otherwise (if false) - saving New Matt
 				result=mattNew.getData().getMattId();
@@ -218,7 +220,7 @@ public class FesBes1 implements IFesBes1 {
 				MattData data = mattNew.getData();
 				MattInfoEntity mattInfo = new MattInfoEntity(data.getName(), data.getPassword(), 
 						data.getnDays(), data.getStartDate(), data.getStartHour(), 
-						data.getEndHour(), data.getTimeSlot(), getPEbyEmail(username));
+						data.getEndHour(), data.getTimeSlot(), prs);
 				List<MattSlots> mattSlots = new ArrayList<MattSlots>();
 				if (!boolSlots_toSlotNums.isEmpty()){ //Map isEmpty if no user selection
 					for(Map.Entry<Date, LinkedList<Integer>> entry: boolSlots_toSlotNums.entrySet()){
@@ -241,9 +243,7 @@ public class FesBes1 implements IFesBes1 {
 	
 	
 	
-	private boolean checkIfMattIsAlreadyExists(Matt mattNew, String username) {
-		//determine person_id by username
-			PersonEntity prs = getPEbyEmail(username);
+	private boolean checkIfMattIsAlreadyExists(Matt mattNew, PersonEntity prs) {
 		//checking if there is no Matt with this name for this user
 			Query query = em.createQuery("select m from MattInfoEntity m "
 					+ "where m.name = :mattName and m.personEntity= :person");
