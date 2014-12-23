@@ -170,6 +170,7 @@ public class FesBes1 implements IFesBes1 {
 			Calendar calendar = new GregorianCalendar();
 			if (numberOfSlotsPerDay > 0){
 				for (int i=0; i<size; i++){
+					//System.out.println(slots.get(i).booleanValue());
 					if(!slots.get(i).booleanValue()){ //returns false if slot value is true i.e. busy.
 						int dayNumber = i/numberOfSlotsPerDay; //because division returns the number of past days
 					    if(!dates.containsKey(dayNumber)){
@@ -210,31 +211,33 @@ public class FesBes1 implements IFesBes1 {
 				//if true - the Matt is exists in DB and we should perform updating of existing Matt.
 				//otherwise (if false) - saving New Matt
 				result=mattNew.getData().getMattId();
-				MattInfoEntity entity = em.find(MattInfoEntity.class, result);	
+				MattInfoEntity entity = em.find(MattInfoEntity.class, result);
+				//check if slots were changed
+				if(!getSlotsFromDB(entity).equals(mattNew.getSlots())){
+					entity.setSlots(createListOfMattSlots(mattNew, entity));
+				}
+				entity.setEndHour(mattNew.getData().getEndHour());
+				entity.setName(mattNew.getData().getName());
+				entity.setnDays(mattNew.getData().getnDays());
+				entity.setPassword(mattNew.getData().getPassword());
+				entity.setStartDate(mattNew.getData().getStartDate());
+				entity.setStartHour(mattNew.getData().getStartHour());
+				entity.setTimeSlot(mattNew.getData().getTimeSlot());
+				//TODO set Notification & set snCalendars ???
 				
 			}
 			else {
 		//saving to DB if newMatt name unique for the user
-				Map<Date, LinkedList<Integer> > boolSlots_toSlotNums = slotsBoolToMap(mattNew.getSlots(), mattNew.getData());
+				
 			//creating MattInfoEntity
 				MattData data = mattNew.getData();
 				MattInfoEntity mattInfo = new MattInfoEntity(data.getName(), data.getPassword(), 
 						data.getnDays(), data.getStartDate(), data.getStartHour(), 
 						data.getEndHour(), data.getTimeSlot(), prs);
-				List<MattSlots> mattSlots = new ArrayList<MattSlots>();
-				if (!boolSlots_toSlotNums.isEmpty()){ //Map isEmpty if no user selection
-					for(Map.Entry<Date, LinkedList<Integer>> entry: boolSlots_toSlotNums.entrySet()){
-						LinkedList<Integer> slotsByDate = entry.getValue();
-					//creating list of separate MattSlots 
-						for(int slot_num : slotsByDate){
-							mattSlots.add(new MattSlots(entry.getKey(), slot_num, mattInfo));
-						}	
-					}
-				}
-				mattInfo.setSlots(mattSlots);
+		//creating List<MattSlots> to save slots to DB
+				mattInfo.setSlots(createListOfMattSlots(mattNew, mattInfo));
 				em.persist(mattInfo);
 				result=mattInfo.getMatt_id();
-				System.out.println(result);
 			}
 		}
 		
@@ -243,6 +246,24 @@ public class FesBes1 implements IFesBes1 {
 	
 	
 	
+	
+	
+	//creating List<MattSlots> to save slots to DB
+	private List<MattSlots> createListOfMattSlots(Matt mattNew, MattInfoEntity entity) {
+		Map<Date, LinkedList<Integer> > boolSlots_toSlotNums = slotsBoolToMap(mattNew.getSlots(), mattNew.getData());
+		List<MattSlots> mattSlots = new ArrayList<MattSlots>();
+		if (!boolSlots_toSlotNums.isEmpty()){ //Map isEmpty if no user selection
+			for(Map.Entry<Date, LinkedList<Integer>> entry: boolSlots_toSlotNums.entrySet()){
+				LinkedList<Integer> slotsByDate = entry.getValue();
+			//creating list of separate MattSlots 
+				for(int slot_num : slotsByDate){
+					mattSlots.add(new MattSlots(entry.getKey(), slot_num, entity));
+				}	
+			}
+	}
+		return mattSlots;
+	}
+
 	private boolean checkIfMattIsAlreadyExists(Matt mattNew, PersonEntity prs) {
 		//checking if there is no Matt with this name for this user
 			Query query = em.createQuery("select m from MattInfoEntity m "
@@ -325,6 +346,7 @@ public class FesBes1 implements IFesBes1 {
 		List<MattSlots> mattSlots = mattEntity.getSlots();
 		if (mattSlots != null)
 			for (MattSlots mattSlot : mattSlots)
+				//TODO check if we should put true/false in the list
 				slotsFromDB.set(mattSlot.getSlot_number(), true);
 			
 		return slotsFromDB;
