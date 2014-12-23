@@ -148,6 +148,38 @@ public class MattInfoEntity {
 	public void setSncalendars(List<SnCalendarsEntity> sncalendars) {
 		this.sncalendars = sncalendars;
 	}
+
+	public void setNotifications(List<NotificationEntity> notifications) {
+		this.notifications = notifications;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public void setnDays(int nDays) {
+		this.nDays = nDays;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public void setStartHour(int startHour) {
+		this.startHour = startHour;
+	}
+
+	public void setEndHour(int endHour) {
+		this.endHour = endHour;
+	}
+
+	public void setTimeSlot(int timeSlot) {
+		this.timeSlot = timeSlot;
+	}
 	
 	
 	
