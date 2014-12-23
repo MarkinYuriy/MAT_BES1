@@ -9,3 +9,4 @@ ALTER TABLE sn_calendars DROP FOREIGN KEY fk_matt_info_sn_calendar;
 ALTER TABLE sn_calendars ADD CONSTRAINT fk_matt_info_sn_calendar  FOREIGN KEY (matt_id) REFERENCES matt_info (matt_id)  ON DELETE CASCADE;
 ALTER TABLE sn_calendars DROP FOREIGN KEY fk_sn_sn_calendar;
 ALTER TABLE sn_calendars ADD CONSTRAINT fk_sn_sn_calendar  FOREIGN KEY (sn_id) REFERENCES social_networks (sn_id)  ON DELETE CASCADE;
+INSERT INTO social_networks (name) values ("Apple"), ("Facebook"), ("Google"), ("Twitter"), ("Windows");
