@@ -32,6 +32,18 @@ public class SnCalendarsEntity {
 	int upload_download_fl;
 	
 	String calendarName;
+	
+	public SnCalendarsEntity(){}
+
+	public SnCalendarsEntity(MattInfoEntity mattInfo,
+			SocialNetworkEntity social_net, int upload_download_fl,
+			String calendarName) {
+		super();
+		this.mattInfo = mattInfo;
+		this.social_net = social_net;
+		this.upload_download_fl = upload_download_fl;
+		this.calendarName = calendarName;
+	}
 
 	public long getSn_calendar_id() {
 		return sn_calendar_id;
