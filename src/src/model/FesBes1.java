@@ -223,7 +223,28 @@ public class FesBes1 implements IFesBes1 {
 				entity.setStartDate(mattNew.getData().getStartDate());
 				entity.setStartHour(mattNew.getData().getStartHour());
 				entity.setTimeSlot(mattNew.getData().getTimeSlot());
-				//TODO set Notification & set snCalendars ???
+				//set snCalendars 
+				//checking if SN [] to download is not null
+				String [] snDownload = mattNew.getData().getDownloadSN();
+				if(snDownload != null){
+					LinkedList<SnCalendarsEntity> snCalendars = new LinkedList<>();
+					//passing through array of SNs and getting all calendar names for each SN
+					for(int i=0; i<snDownload.length; i++){
+						List<String> downloadCalendarName = mattNew.getData().getDownloadCalendars(snDownload[i]);
+						//getting SocialNetworkEntity instance from DB
+						Query query = em.createQuery("SELECT * FROM SocialNetworkEntity sn where sn.name= :snName");
+						query.setParameter("snName", snDownload[i]);
+						SocialNetworkEntity snEntity = (SocialNetworkEntity) query.getSingleResult();
+						//creating separate SnCalendarsEntity for each Calendar.
+						//Add the entity to Calendars to Download list
+						for(String calendName: downloadCalendarName){
+							snCalendars.add(new SnCalendarsEntity(entity, snEntity, 
+									SnCalendarsEntity.DOWNLOAD, calendName));
+						}
+					}
+					//saving snCalendars
+					entity.setSncalendars(snCalendars);
+				}
 				
 			}
 			else {
@@ -303,12 +324,6 @@ public class FesBes1 implements IFesBes1 {
 				}
 			}
 		
-		// 2 - building MATTs from MattEntities
-			/*List<Matt> actualUserMatts = new LinkedList<Matt>();
-			for(MattInfoEntity entity : mattEntities)
-				actualUserMatts.add(getMattFromMattEntity(entity, username));	*/
-			
-			//iBackCon.setMatCalendar(username, snNames, actualUserMatts);
 		}
 	}
 
@@ -319,7 +334,8 @@ public class FesBes1 implements IFesBes1 {
 		MattData mattData = new MattData(entity.getName(), entity.getnDays(), entity.getStartDate(), 
 					entity.getStartHour(), entity.getEndHour(), entity.getTimeSlot(), entity.getPassword());
 			matt.setData(mattData);
-			matt.setSlots(getSlotsFromDB(entity));
+			matt.setSlots(getSlotsFromDB(entity)); //getting slots from DB
+			//if the Matt isn't synchronized with SN => returning existing Matt, otherwise - invoking getSlots() from iBackCon.
 		return (entity.getSncalendars() != null && !entity.getSncalendars().isEmpty()) ?
 				   iBackCon.getSlots(entity.getPersonEntity().getEmail(), matt) : matt;
 	}
@@ -327,11 +343,11 @@ public class FesBes1 implements IFesBes1 {
 	
 	@Override
 	@Transactional
+	//functions call sequence: getMatt() -> getMattFromMattEntity() -> getSlotsFromDB()
 	public Matt getMatt(int matt_id) {
 		MattInfoEntity entity = em.find(MattInfoEntity.class, matt_id); //looking for mattEntity by ID
 		//getting username from the entity and invoking getMattFromMattEntity() if MattEntity was found
 		//returning null if MattEntity doesn't exists
-		System.out.println(entity.getName());
 		return (entity != null) ? 
 				getMattFromMattEntity(entity, entity.getPersonEntity().getEmail()) : null; 
 	}
@@ -342,13 +358,13 @@ public class FesBes1 implements IFesBes1 {
 	//determining number of slots and creating Boolean list with all slots marked as false.
 		int numberOfSlotsPerDay=mattEntity.getEndHour()-mattEntity.getStartHour();
 		int slotsNumber = numberOfSlotsPerDay * mattEntity.getnDays() * FesBes1.MIN_PER_HOUR/mattEntity.getTimeSlot();
-		ArrayList<Boolean> slotsFromDB = new ArrayList<Boolean>(Collections.nCopies(slotsNumber, false));
+		ArrayList<Boolean> slotsFromDB = new ArrayList<Boolean>(Collections.nCopies(slotsNumber, true));
 	//taking busy slot numbers from DB and changing ArrayList values (setting to true) by the index
 		List<MattSlots> mattSlots = mattEntity.getSlots();
 		if (mattSlots != null)
 			for (MattSlots mattSlot : mattSlots)
 				//TODO check if we should put true/false in the list
-				slotsFromDB.set(mattSlot.getSlot_number(), true);
+				slotsFromDB.set(mattSlot.getSlot_number(), false);
 			
 		return slotsFromDB;
 	}
@@ -367,6 +383,7 @@ public class FesBes1 implements IFesBes1 {
 		return result;
 	}
 
+	//Deprecated
 	private ArrayList<Boolean> compareSlotMarks(ArrayList<Boolean> oldSlots,
 			ArrayList<Boolean> newSlots) {
 		int size = oldSlots.size();
@@ -471,14 +488,16 @@ public class FesBes1 implements IFesBes1 {
 	@Override
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRES_NEW)
 	public boolean setGuests(int matt_id, String [] guestEmails) {
+		Boolean result=false;
 		MattInfoEntity mattInfo = em.find(MattInfoEntity.class, matt_id);
 			if ( mattInfo!= null){
+				result=true;
 				for(int i=0;i<guestEmails.length;i++){
 					NotificationEntity notification = new NotificationEntity(mattInfo, guestEmails[i]);
 					em.persist(notification);
 				}
 			}
-			return false;
+			return result;
 		
 	}
 
