@@ -326,6 +326,7 @@ public class FesBes1 implements IFesBes1 {
 		
 	
 	@Override
+	@Transactional
 	public Matt getMatt(int matt_id) {
 		MattInfoEntity entity = em.find(MattInfoEntity.class, matt_id); //looking for mattEntity by ID
 		//getting username from the entity and invoking getMattFromMattEntity() if MattEntity was found
