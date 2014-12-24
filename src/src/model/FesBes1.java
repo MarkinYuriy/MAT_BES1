@@ -224,27 +224,41 @@ public class FesBes1 implements IFesBes1 {
 				entity.setStartHour(mattNew.getData().getStartHour());
 				entity.setTimeSlot(mattNew.getData().getTimeSlot());
 				//set snCalendars 
+				LinkedList<SnCalendarsEntity> snCalendars = new LinkedList<>();
 				//checking if SN [] to download is not null
 				String [] snDownload = mattNew.getData().getDownloadSN();
-				if(snDownload != null){
-					LinkedList<SnCalendarsEntity> snCalendars = new LinkedList<>();
+				if(snDownload != null && snDownload.length > 0){
 					//passing through array of SNs and getting all calendar names for each SN
 					for(int i=0; i<snDownload.length; i++){
 						List<String> downloadCalendarName = mattNew.getData().getDownloadCalendars(snDownload[i]);
 						//getting SocialNetworkEntity instance from DB
-						Query query = em.createQuery("SELECT * FROM SocialNetworkEntity sn where sn.name= :snName");
-						query.setParameter("snName", snDownload[i]);
-						SocialNetworkEntity snEntity = (SocialNetworkEntity) query.getSingleResult();
+						SocialNetworkEntity snEntity = getSNInstanceFromDB(snDownload[i]);
 						//creating separate SnCalendarsEntity for each Calendar.
 						//Add the entity to Calendars to Download list
-						for(String calendName: downloadCalendarName){
+						for(String calendName: downloadCalendarName)
 							snCalendars.add(new SnCalendarsEntity(entity, snEntity, 
 									SnCalendarsEntity.DOWNLOAD, calendName));
-						}
 					}
-					//saving snCalendars
-					entity.setSncalendars(snCalendars);
+					
 				}
+				//checking if SN [] to upload is not null
+				String [] snUpload = mattNew.getData().getUploadSN();
+				if (snUpload != null && snUpload.length > 0){
+					//passing through array of SNs and getting all calendar names for each SN
+					for(int i=0; i<snUpload.length; i++){
+						List<String> uploadCalendarName = mattNew.getData().getUploadCalendars(snUpload[i]);
+						//getting SocialNetworkEntity instance from DB
+						SocialNetworkEntity snEntity = getSNInstanceFromDB(snUpload[i]);
+						//creating separate SnCalendarsEntity for each Calendar.
+						//Add the entity to Calendars to Download list
+						for(String calendName: uploadCalendarName)
+							snCalendars.add(new SnCalendarsEntity(entity, snEntity, 
+									SnCalendarsEntity.UPLOAD, calendName));
+					}
+				}
+				//saving snCalendars
+				if(!snCalendars.isEmpty())
+					entity.setSncalendars(snCalendars);
 				
 			}
 			else {
@@ -268,7 +282,14 @@ public class FesBes1 implements IFesBes1 {
 	
 	
 	
-	
+	//getting SocialNetworkEntity instance from DB
+	private SocialNetworkEntity getSNInstanceFromDB(String snName) {
+		Query query = em.createQuery("SELECT * FROM SocialNetworkEntity sn where sn.name= :snName");
+		query.setParameter("snName", snName);
+		return (SocialNetworkEntity) query.getSingleResult();
+		
+	}
+
 	//creating List<MattSlots> to save slots to DB
 	private List<MattSlots> createListOfMattSlots(Matt mattNew, MattInfoEntity entity) {
 		Map<Date, LinkedList<Integer> > boolSlots_toSlotNums = slotsBoolToMap(mattNew.getSlots(), mattNew.getData());
