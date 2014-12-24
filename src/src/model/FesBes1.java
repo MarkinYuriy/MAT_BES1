@@ -207,15 +207,18 @@ public class FesBes1 implements IFesBes1 {
 		if (mattNew != null && username != null) {
 			//determine person_id by username
 			PersonEntity prs = getPEbyEmail(username);
-			if (checkIfMattIsAlreadyExists(mattNew, prs)){ 
+			MattInfoEntity entity = checkIfMattIsAlreadyExists(mattNew, prs) ;
+			if (entity != null){ 
 				//if true - the Matt is exists in DB and we should perform updating of existing Matt.
 				//otherwise (if false) - saving New Matt
-				result=mattNew.getData().getMattId();
-				MattInfoEntity entity = em.find(MattInfoEntity.class, result);
+				result=entity.getMatt_id();
+				System.out.println(result);
+				System.out.println(entity.getSlots());
+				System.out.println(mattNew.getSlots() + "*********");
 				//check if slots were changed
-				if(!getSlotsFromDB(entity).equals(mattNew.getSlots())){
+				//if(!getSlotsFromDB(entity).equals(mattNew.getSlots()))
 					entity.setSlots(createListOfMattSlots(mattNew, entity));
-				}
+				
 				entity.setEndHour(mattNew.getData().getEndHour());
 				entity.setName(mattNew.getData().getName());
 				entity.setnDays(mattNew.getData().getnDays());
@@ -306,14 +309,14 @@ public class FesBes1 implements IFesBes1 {
 		return mattSlots;
 	}
 
-	private boolean checkIfMattIsAlreadyExists(Matt mattNew, PersonEntity prs) {
+	private MattInfoEntity checkIfMattIsAlreadyExists(Matt mattNew, PersonEntity prs) {
 		//checking if there is no Matt with this name for this user
 			Query query = em.createQuery("select m from MattInfoEntity m "
 					+ "where m.name = :mattName and m.personEntity= :person");
 			query.setParameter("mattName", mattNew.getData().getName());
 			query.setParameter("person", prs);
-			int isMattNameDuplicated = query.getResultList().size();
-		return isMattNameDuplicated!=0 ? true : false;
+			List<MattInfoEntity> entity = query.getResultList();
+		return entity.size() > 0 ? entity.get(0) : null;
 	}
 
 	@Override
