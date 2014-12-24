@@ -8,9 +8,9 @@ import org.hibernate.annotations.ForeignKey;
 @Table(name="sn_calendars")
 public class SnCalendarsEntity {
 	//default values to define synchronization of user Matt with SN Calendars
-	public static final int NOT_SYNCHRONIZED=0;	
-	public static final int UPLOAD=1; //Matt uploaded to SN Calendar, i.e. matt is added to specified calendar. (setCalendar())
-	public static final int DOWNLOAD=2; //User events from specified SN calendar are loaded into Matt (i.e. getSlots() invoked).
+	public static final int NOT_SYNCHRONIZED=2;	
+	public static final int UPLOAD=0; //Matt uploaded to SN Calendar, i.e. matt is added to specified calendar. (setCalendar())
+	public static final int DOWNLOAD=1; //User events from specified SN calendar are loaded into Matt (i.e. getSlots() invoked).
 	public static final int UPLOAD_AND_DOWNLOAD=3; 
 	
 	@Id

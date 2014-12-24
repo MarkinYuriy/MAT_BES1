@@ -359,36 +359,41 @@ public class FesBes1 implements IFesBes1 {
 		if(snCalendarsEntities != null && !snCalendarsEntities.isEmpty()){
 			HashMap<String, List<String>[]> snCalendars = new HashMap<>(); //creating HashMap
 			for(SnCalendarsEntity calend: snCalendarsEntities){
+				//getting List of calendars for current SN
+				List<String>[] calendarNames  = snCalendars.get(calend.getSocial_net().getName()); 
 				if(snCalendars.containsKey(calend.getSocial_net().getName())){ //updating value for this key
-					List<String>[] calendarNames  = snCalendars.get(calend.getSocial_net().getName());
 					if(calend.getUpload_download_fl() == SnCalendarsEntity.UPLOAD){
+						if (calendarNames[0] == null) //if no Calendar to Upload exists
+							calendarNames[0] = new ArrayList<String>(); //creating upload list
 						calendarNames[0].add(calend.getCalendarName());
 						snCalendars.replace(calend.getSocial_net().getName(), calendarNames);
 					}
 					else if(calend.getUpload_download_fl() == SnCalendarsEntity.DOWNLOAD){
+						if (calendarNames[1] == null) //if no Calendar to Download exists
+							calendarNames[1] = new ArrayList<String>(); //creating Download list
 						calendarNames[1].add(calend.getCalendarName());
 						snCalendars.replace(calend.getSocial_net().getName(), calendarNames);
 					}
 					
 				}
 				else { //adding new key
-					List<String>[] calendarNames = new List[2]; //creating array of Lists
+					List<String>[] newCalendarNames = new List[2]; //creating array of Lists
 					if(calend.getUpload_download_fl() == SnCalendarsEntity.UPLOAD){
-						calendarNames[0] = new ArrayList<String>(); //creating upload list
-						calendarNames[0].add(calend.getCalendarName());
-						snCalendars.put(calend.getSocial_net().getName(), calendarNames);
+						newCalendarNames[0] = new ArrayList<String>(); //creating upload list
+						newCalendarNames[0].add(calend.getCalendarName());
+						snCalendars.put(calend.getSocial_net().getName(), newCalendarNames);
 					}
 					else if (calend.getUpload_download_fl() == SnCalendarsEntity.DOWNLOAD){
-						calendarNames[1] = new ArrayList<String>();
-						calendarNames[1].add(calend.getCalendarName());
-						snCalendars.put(calend.getSocial_net().getName(), calendarNames);
+						newCalendarNames[1] = new ArrayList<String>();
+						newCalendarNames[1].add(calend.getCalendarName());
+						snCalendars.put(calend.getSocial_net().getName(), newCalendarNames);
 						
 					}
 				}
 				
 			}
 			//setting snCalendars to MattData
-			mattData.setSNCalendars(snCalendars);
+			mattData.setSNCalendars(snCalendars);		
 		}
 			matt.setData(mattData);
 			matt.setSlots(getSlotsFromDB(entity)); //getting slots from DB
