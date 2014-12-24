@@ -207,20 +207,23 @@ public class FesBes1 implements IFesBes1 {
 		if (mattNew != null && username != null) {
 			//determine person_id by username
 			PersonEntity prs = getPEbyEmail(username);
-			MattInfoEntity entity = checkIfMattIsAlreadyExists(mattNew, prs) ;
+			MattInfoEntity entity = checkIfMattIsAlreadyExists(mattNew, prs);
 			if (entity != null){ 
 				//if true - the Matt is exists in DB and we should perform updating of existing Matt.
 				//otherwise (if false) - saving New Matt
 				result=entity.getMatt_id();
-				System.out.println(result);
-				System.out.println(entity.getSlots());
-				System.out.println(mattNew.getSlots() + "*********");
 				//check if slots were changed
-				//if(!getSlotsFromDB(entity).equals(mattNew.getSlots()))
+				if(!getSlotsFromDB(entity).equals(mattNew.getSlots())){
+					//deleting existing slots from DB
+					for(MattSlots slot: entity.getSlots())
+						em.remove(slot);
+					//saving new slots
 					entity.setSlots(createListOfMattSlots(mattNew, entity));
+				}
 				
-				entity.setEndHour(mattNew.getData().getEndHour());
+				
 				entity.setName(mattNew.getData().getName());
+				entity.setEndHour(mattNew.getData().getEndHour());
 				entity.setnDays(mattNew.getData().getnDays());
 				entity.setPassword(mattNew.getData().getPassword());
 				entity.setStartDate(mattNew.getData().getStartDate());

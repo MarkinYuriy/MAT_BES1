@@ -2,6 +2,7 @@ package model;
 
 
 import java.util.*;
+
 import javax.persistence.*;
 
 @Entity
@@ -27,11 +28,19 @@ public class SocialNetworkEntity {
 	
 	public SocialNetworkEntity() {}
 	
+	public List<SnCalendarsEntity> getSn_calendars() {
+		return sn_calendars;
+	}
+	public void setSn_calendars(List<SnCalendarsEntity> sn_calendars) {
+		this.sn_calendars = sn_calendars;
+	}
+	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + id;
 		return result;
 	}
 	@Override
@@ -43,18 +52,9 @@ public class SocialNetworkEntity {
 		if (getClass() != obj.getClass())
 			return false;
 		SocialNetworkEntity other = (SocialNetworkEntity) obj;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
+		if (id != other.id)
 			return false;
 		return true;
-	}
-	public List<SnCalendarsEntity> getSn_calendars() {
-		return sn_calendars;
-	}
-	public void setSn_calendars(List<SnCalendarsEntity> sn_calendars) {
-		this.sn_calendars = sn_calendars;
 	}
 	
 	/*	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "personSocialNetworks")

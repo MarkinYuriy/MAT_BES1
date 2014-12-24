@@ -109,37 +109,6 @@ public class MattInfoEntity {
 		this.slots = slots;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result
-				+ ((personEntity == null) ? 0 : personEntity.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		MattInfoEntity other = (MattInfoEntity) obj;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (personEntity == null) {
-			if (other.personEntity != null)
-				return false;
-		} else if (!personEntity.equals(other.personEntity))
-			return false;
-		return true;
-	}
 
 	public List<SnCalendarsEntity> getSncalendars() {
 		return sncalendars;
@@ -179,6 +148,28 @@ public class MattInfoEntity {
 
 	public void setTimeSlot(int timeSlot) {
 		this.timeSlot = timeSlot;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + matt_id;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MattInfoEntity other = (MattInfoEntity) obj;
+		if (matt_id != other.matt_id)
+			return false;
+		return true;
 	}
 	
 	
