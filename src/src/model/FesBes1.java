@@ -354,6 +354,42 @@ public class FesBes1 implements IFesBes1 {
 		Matt matt = new Matt();
 		MattData mattData = new MattData(entity.getName(), entity.getnDays(), entity.getStartDate(), 
 					entity.getStartHour(), entity.getEndHour(), entity.getTimeSlot(), entity.getPassword());
+		//populating HashMap<String, List<String>[]> sncalendars
+		List<SnCalendarsEntity> snCalendarsEntities= entity.getSncalendars(); //getting list of SnCalendars
+		if(snCalendarsEntities != null && !snCalendarsEntities.isEmpty()){
+			HashMap<String, List<String>[]> snCalendars = new HashMap<>(); //creating HashMap
+			for(SnCalendarsEntity calend: snCalendarsEntities){
+				if(snCalendars.containsKey(calend.getSocial_net().getName())){ //updating value for this key
+					List<String>[] calendarNames  = snCalendars.get(calend.getSocial_net().getName());
+					if(calend.getUpload_download_fl() == SnCalendarsEntity.UPLOAD){
+						calendarNames[0].add(calend.getCalendarName());
+						snCalendars.replace(calend.getSocial_net().getName(), calendarNames);
+					}
+					else if(calend.getUpload_download_fl() == SnCalendarsEntity.DOWNLOAD){
+						calendarNames[1].add(calend.getCalendarName());
+						snCalendars.replace(calend.getSocial_net().getName(), calendarNames);
+					}
+					
+				}
+				else { //adding new key
+					List<String>[] calendarNames = new List[2]; //creating array of Lists
+					if(calend.getUpload_download_fl() == SnCalendarsEntity.UPLOAD){
+						calendarNames[0] = new ArrayList<String>(); //creating upload list
+						calendarNames[0].add(calend.getCalendarName());
+						snCalendars.put(calend.getSocial_net().getName(), calendarNames);
+					}
+					else if (calend.getUpload_download_fl() == SnCalendarsEntity.DOWNLOAD){
+						calendarNames[1] = new ArrayList<String>();
+						calendarNames[1].add(calend.getCalendarName());
+						snCalendars.put(calend.getSocial_net().getName(), calendarNames);
+						
+					}
+				}
+				
+			}
+			//setting snCalendars to MattData
+			mattData.setSNCalendars(snCalendars);
+		}
 			matt.setData(mattData);
 			matt.setSlots(getSlotsFromDB(entity)); //getting slots from DB
 			//if the Matt isn't synchronized with SN => returning existing Matt, otherwise - invoking getSlots() from iBackCon.
