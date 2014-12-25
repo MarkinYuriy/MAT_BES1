@@ -101,64 +101,7 @@ public class FesBes1 implements IFesBes1 {
 		return result;
 	}
 
-	//@Override
-	public Matt createMatt(MattData data, String username)  {
-		/*
-		 * using service IBes1Bes2, described in file beans.xml bean
-		 * id="bes1bes2" property name="serviceUrl"
-		 * value="http://localhost:8080/bes1bes2_service/bes1bes2_service.service"
-		 * property name="serviceInterface" value="mat.IBackConnector"
-		 */
-		mat.Matt newMatt = null;
-		if (data != null && username != null){
-	//determine person_id by username
-		PersonEntity prs = getPEbyEmail(username);
-	//checking if there is no Matt with this name for this user
-		Query query = em.createQuery("select m from MattInfoEntity m "
-				+ "where m.name = :mattName and m.personEntity= :person");
-		query.setParameter("mattName", data.getName());
-		query.setParameter("person", prs);
-		int isMattNameDuplicated = query.getResultList().size();
-		if (isMattNameDuplicated == 0){	
-	/*getting list of user Social Networks, 
-	  invoking getSlots() function to get Boolean ArrayList of free/busy intervals.*/
-		ArrayList<Boolean> slots= getSlotsFromSN(data, username);
-	//creating new Matt
-	if (slots != null) {
-			newMatt = new mat.Matt();
-			newMatt.setData(data);
-			newMatt.setSlots(slots);
-		}
-		}
-		}
-		return newMatt;
-	}
 	
-	
-	/* getting list of user Social Networks, 
-	   invoking getSlots() function to get Boolean ArrayList of free/busy intervals.*/
-	private ArrayList<Boolean> getSlotsFromSN(MattData data, String username) {
-		ArrayList<Boolean> slots=null;
-	//get the list of SN for the user
-	/*	PersonEntity prs = getPEbyEmail(username);
-		// TODO
-		Set<SocialNetworkEntity> snList = prs.getPersonSocialNetworks(); //PersonSocialNetworks is the field of class PersonEntity
-		
-	//if user have no selected SN building slots array with all false (i.e. free time intervals)
-		if(snList == null || snList.isEmpty()){
-			int numberOfSlotsPerDay=data.getEndHour()-data.getStartHour();
-			int slotsNumber = numberOfSlotsPerDay * data.getnDays() * FesBes1.MIN_PER_HOUR/data.getTimeSlot();
-			slots = new ArrayList<Boolean>(Collections.nCopies(slotsNumber, false));
-		}
-		else { //getting slots from SN networks
-			List<String> snNames = new LinkedList<String>();
-			for (SocialNetworkEntity sn: snList)
-				snNames.add(sn.getName());
-			//TODO
-			//slots = (ArrayList<Boolean>)iBackCon.getSlots(prs.getEmail(), snNames.toArray(new String[snNames.size()]), data); //prs.getEmail() = username
-					}*/
-		return slots;
-	}
 
 	private Map<Date, LinkedList<Integer>> slotsBoolToMap (
 			ArrayList<Boolean> slots, MattData data) {
@@ -197,8 +140,6 @@ public class FesBes1 implements IFesBes1 {
 		return result;
 	}
 	
-	
-	
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	@Override
@@ -233,7 +174,7 @@ public class FesBes1 implements IFesBes1 {
 				LinkedList<SnCalendarsEntity> snCalendars = new LinkedList<>();
 				//checking if SN [] to download is not null
 				String [] snDownload = mattNew.getData().getDownloadSN();
-				if(snDownload != null && snDownload.length > 0){
+				if(snDownload != null && snDownload[0] != null){
 					//passing through array of SNs and getting all calendar names for each SN
 					for(int i=0; i<snDownload.length; i++){
 						List<String> downloadCalendarName = mattNew.getData().getDownloadCalendars(snDownload[i]);
@@ -249,7 +190,7 @@ public class FesBes1 implements IFesBes1 {
 				}
 				//checking if SN [] to upload is not null
 				String [] snUpload = mattNew.getData().getUploadSN();
-				if (snUpload != null && snUpload.length > 0){
+				if (snUpload != null && snUpload[0] != null){
 					//passing through array of SNs and getting all calendar names for each SN
 					for(int i=0; i<snUpload.length; i++){
 						List<String> uploadCalendarName = mattNew.getData().getUploadCalendars(snUpload[i]);
@@ -263,8 +204,11 @@ public class FesBes1 implements IFesBes1 {
 					}
 				}
 				//saving snCalendars
-				if(!snCalendars.isEmpty())
-					entity.setSncalendars(snCalendars);
+				if(entity.getSncalendars() != null && !snCalendars.equals(entity.getSncalendars())){ //if snCalendars list was changed 
+					for(SnCalendarsEntity snCal : entity.getSncalendars()) //deleting old entities from DB
+						em.remove(snCal);
+					entity.setSncalendars(snCalendars); //setting new snCalendar list
+				}
 				
 			}
 			else {
@@ -290,7 +234,8 @@ public class FesBes1 implements IFesBes1 {
 	
 	//getting SocialNetworkEntity instance from DB
 	private SocialNetworkEntity getSNInstanceFromDB(String snName) {
-		Query query = em.createQuery("SELECT * FROM SocialNetworkEntity sn where sn.name= :snName");
+		
+		Query query = em.createQuery("SELECT sn FROM SocialNetworkEntity sn where sn.name= :snName");
 		query.setParameter("snName", snName);
 		return (SocialNetworkEntity) query.getSingleResult();
 		
@@ -450,22 +395,7 @@ public class FesBes1 implements IFesBes1 {
 		}		
 		return result;
 	}
-
-	//Deprecated
-	private ArrayList<Boolean> compareSlotMarks(ArrayList<Boolean> oldSlots,
-			ArrayList<Boolean> newSlots) {
-		int size = oldSlots.size();
-		ArrayList<Boolean> result = new ArrayList<Boolean>();
-		for (int i = 0; i < size; i++) {
-			if (oldSlots.get(i).booleanValue() && newSlots.get(i).booleanValue()) //building new slots array with user-marked intervals.
-				result.add(false);
-			else if (!oldSlots.get(i).booleanValue() && !newSlots.get(i).booleanValue())
-				result.add(false);
-			else result.add(true);
-		}
-		return result;
-	}
-
+	
 
 	@Override
 	public HashMap<Integer, String> getMattNames(String username) {
@@ -570,6 +500,83 @@ public class FesBes1 implements IFesBes1 {
 	}
 
 	
+	/* ***** Deprecated Methods *******/
+		private ArrayList<Boolean> compareSlotMarks(ArrayList<Boolean> oldSlots,
+				ArrayList<Boolean> newSlots) {
+			int size = oldSlots.size();
+			ArrayList<Boolean> result = new ArrayList<Boolean>();
+			for (int i = 0; i < size; i++) {
+				if (oldSlots.get(i).booleanValue() && newSlots.get(i).booleanValue()) //building new slots array with user-marked intervals.
+					result.add(false);
+				else if (!oldSlots.get(i).booleanValue() && !newSlots.get(i).booleanValue())
+					result.add(false);
+				else result.add(true);
+			}
+			return result;
+		}
+		
+		
+		
+		//Deprecated
+		//@Override
+		public Matt createMatt(MattData data, String username)  {
+			/*
+			 * using service IBes1Bes2, described in file beans.xml bean
+			 * id="bes1bes2" property name="serviceUrl"
+			 * value="http://localhost:8080/bes1bes2_service/bes1bes2_service.service"
+			 * property name="serviceInterface" value="mat.IBackConnector"
+			 */
+			mat.Matt newMatt = null;
+			if (data != null && username != null){
+		//determine person_id by username
+			PersonEntity prs = getPEbyEmail(username);
+		//checking if there is no Matt with this name for this user
+			Query query = em.createQuery("select m from MattInfoEntity m "
+					+ "where m.name = :mattName and m.personEntity= :person");
+			query.setParameter("mattName", data.getName());
+			query.setParameter("person", prs);
+			int isMattNameDuplicated = query.getResultList().size();
+			if (isMattNameDuplicated == 0){	
+		/*getting list of user Social Networks, 
+		  invoking getSlots() function to get Boolean ArrayList of free/busy intervals.*/
+			ArrayList<Boolean> slots= getSlotsFromSN(data, username);
+		//creating new Matt
+		if (slots != null) {
+				newMatt = new mat.Matt();
+				newMatt.setData(data);
+				newMatt.setSlots(slots);
+			}
+			}
+			}
+			return newMatt;
+		}
+		
+		
+		//Deprecated
+		/* getting list of user Social Networks, 
+		   invoking getSlots() function to get Boolean ArrayList of free/busy intervals.*/
+		private ArrayList<Boolean> getSlotsFromSN(MattData data, String username) {
+			ArrayList<Boolean> slots=null;
+		//get the list of SN for the user
+		/*	PersonEntity prs = getPEbyEmail(username);
+			// TODO
+			Set<SocialNetworkEntity> snList = prs.getPersonSocialNetworks(); //PersonSocialNetworks is the field of class PersonEntity
+			
+		//if user have no selected SN building slots array with all false (i.e. free time intervals)
+			if(snList == null || snList.isEmpty()){
+				int numberOfSlotsPerDay=data.getEndHour()-data.getStartHour();
+				int slotsNumber = numberOfSlotsPerDay * data.getnDays() * FesBes1.MIN_PER_HOUR/data.getTimeSlot();
+				slots = new ArrayList<Boolean>(Collections.nCopies(slotsNumber, false));
+			}
+			else { //getting slots from SN networks
+				List<String> snNames = new LinkedList<String>();
+				for (SocialNetworkEntity sn: snList)
+					snNames.add(sn.getName());
+				//TODO
+				//slots = (ArrayList<Boolean>)iBackCon.getSlots(prs.getEmail(), snNames.toArray(new String[snNames.size()]), data); //prs.getEmail() = username
+						}*/
+			return slots;
+		}
 
 	
 }
