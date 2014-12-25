@@ -84,6 +84,49 @@ public class SnCalendarsEntity {
 	public void setCalendarName(String calendarName) {
 		this.calendarName = calendarName;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((calendarName == null) ? 0 : calendarName.hashCode());
+		result = prime * result
+				+ ((mattInfo == null) ? 0 : mattInfo.hashCode());
+		result = prime * result
+				+ ((social_net == null) ? 0 : social_net.hashCode());
+		result = prime * result + upload_download_fl;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SnCalendarsEntity other = (SnCalendarsEntity) obj;
+		if (calendarName == null) {
+			if (other.calendarName != null)
+				return false;
+		} else if (!calendarName.equals(other.calendarName))
+			return false;
+		if (mattInfo == null) {
+			if (other.mattInfo != null)
+				return false;
+		} else if (!mattInfo.equals(other.mattInfo))
+			return false;
+		if (social_net == null) {
+			if (other.social_net != null)
+				return false;
+		} else if (!social_net.equals(other.social_net))
+			return false;
+		if (upload_download_fl != other.upload_download_fl)
+			return false;
+		return true;
+	}
 	
 	
 	
