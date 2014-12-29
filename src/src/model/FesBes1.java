@@ -494,17 +494,16 @@ public class FesBes1 implements IFesBes1 {
 	public boolean setGuests(int matt_id, String [] guestEmails) {
 		Boolean result=false;
 		MattInfoEntity mattInfo = em.find(MattInfoEntity.class, matt_id);
-			if ( mattInfo!= null){
+			if (mattInfo!= null){
 				result=true;
 				for(int i=0;i<guestEmails.length;i++){
 					NotificationEntity notification = new NotificationEntity(mattInfo, guestEmails[i]);
 					em.persist(notification);
-					iBackCon.sendInvitation(mattInfo.getPersonEntity().getEmail(), 
-							mattInfo.getPersonEntity().getName(), mattInfo.getName(), guestEmails);
 				}
+			iBackCon.sendInvitation(mattInfo.getPersonEntity().getEmail(), 
+					mattInfo.getPersonEntity().getName(), mattInfo.getName(), guestEmails);
 			}
 			return result;
-		
 	}
 
 	/* ***** Deprecated Methods *******/
