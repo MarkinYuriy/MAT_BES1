@@ -122,6 +122,10 @@ public class MattInfoEntity {
 		this.notifications = notifications;
 	}
 
+	public List<NotificationEntity> getNotifications() {
+		return notifications;
+	}
+
 	public void setName(String name) {
 		this.name = name;
 	}

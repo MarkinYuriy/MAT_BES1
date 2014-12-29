@@ -585,8 +585,16 @@ public class FesBes1 implements IFesBes1 {
 		}
 
 		@Override
-		public String[] getGuests(int arg0) {
-			// TODO Auto-generated method stub
+		public String[] getGuests(int mattId) {
+			MattInfoEntity entity = em.find(MattInfoEntity.class, mattId); 			//looking for mattEntity by ID
+			List<NotificationEntity> nf = entity.getNotifications();
+			if(nf!=null){
+				String[] result = new String[nf.size()];
+				int ind = 0;
+				for(NotificationEntity ne: nf)
+					result[ind++] = ne.getGuest_email();
+				return result;
+			}
 			return null;
 		}
 
