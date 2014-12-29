@@ -480,7 +480,7 @@ public class FesBes1 implements IFesBes1 {
 	    	Notification notif = new Notification();
 	    	notif.mattId = ne.getMattInfo().getMatt_id();
 	    	notif.mattName = ne.getMattInfo().getName();
-	    	notif.nameOfUser=ne.getMattInfo().getPersonEntity().getEmail();//or username??
+	    	notif.nameOfUser=ne.getMattInfo().getPersonEntity().getName();//or username??
 	    	notif.userEmail=ne.getGuest_email();
 	    																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																								
 	    	rt.add(notif);
