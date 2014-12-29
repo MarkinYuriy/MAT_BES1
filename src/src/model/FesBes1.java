@@ -499,13 +499,14 @@ public class FesBes1 implements IFesBes1 {
 				for(int i=0;i<guestEmails.length;i++){
 					NotificationEntity notification = new NotificationEntity(mattInfo, guestEmails[i]);
 					em.persist(notification);
+					iBackCon.sendInvitation(mattInfo.getPersonEntity().getEmail(), 
+							mattInfo.getPersonEntity().getName(), mattInfo.getName(), guestEmails);
 				}
 			}
 			return result;
 		
 	}
 
-	
 	/* ***** Deprecated Methods *******/
 		private ArrayList<Boolean> compareSlotMarks(ArrayList<Boolean> oldSlots,
 				ArrayList<Boolean> newSlots) {
