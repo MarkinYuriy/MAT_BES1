@@ -591,10 +591,22 @@ public class FesBes1 implements IFesBes1 {
 		}
 
 		@Override
-		public Matt updateInvitationMatt(int arg0, String arg1,
-				HashMap<String, List<String>> arg2) {
-			// TODO Auto-generated method stub
-			return null;
+		public Matt updateInvitationMatt(int matt_id, String username,
+				HashMap<String, List<String>> sncalendars) {
+				MattInfoEntity entity = em.find(MattInfoEntity.class, matt_id); 			//looking for mattEntity by ID
+				Matt result=new Matt();
+				if(entity!=null){
+					Matt matt = new Matt();
+					MattData mattData = new MattData(entity.getName(), entity.getnDays(), entity.getStartDate(), 
+							entity.getStartHour(), entity.getEndHour(), entity.getTimeSlot(), entity.getPassword());
+					for(Map.Entry<String,List<String>> start:sncalendars.entrySet()){ 		//going throught hashmap calendars of socialnetworks
+						mattData.setDownloadCalendars(start.getKey(), start.getValue());
+						}													
+					matt.setData(mattData);
+					matt.setSlots(getSlotsFromDB(entity)); //getting slots from DB
+					result=iBackCon.getSlots(username, matt);
+				}
+			return result;
 		}
 
 	
