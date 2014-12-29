@@ -480,6 +480,9 @@ public class FesBes1 implements IFesBes1 {
 	    	Notification notif = new Notification();
 	    	notif.mattId = ne.getMattInfo().getMatt_id();
 	    	notif.mattName = ne.getMattInfo().getName();
+	    	notif.nameOfUser=ne.getMattInfo().getPersonEntity().getEmail();//or username??
+	    	notif.userEmail=ne.getGuest_email();
+	    																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																								
 	    	rt.add(notif);
 	   	   }
 	   return rt;
@@ -579,6 +582,19 @@ public class FesBes1 implements IFesBes1 {
 				//slots = (ArrayList<Boolean>)iBackCon.getSlots(prs.getEmail(), snNames.toArray(new String[snNames.size()]), data); //prs.getEmail() = username
 						}*/
 			return slots;
+		}
+
+		@Override
+		public String[] getGuests(int arg0) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Matt updateInvitationMatt(int arg0, String arg1,
+				HashMap<String, List<String>> arg2) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 	
