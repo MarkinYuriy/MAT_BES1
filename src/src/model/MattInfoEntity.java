@@ -18,7 +18,7 @@ public class MattInfoEntity {
 	@Column(name = "matt_id")
 	int matt_id;
 	
-	@ManyToOne (fetch=FetchType.LAZY)
+	@ManyToOne (fetch=FetchType.EAGER)
 	@JoinColumn(name = "person_id")
 	@ForeignKey(name = "fk_mattsinfo_person_id")
 	PersonEntity personEntity;
