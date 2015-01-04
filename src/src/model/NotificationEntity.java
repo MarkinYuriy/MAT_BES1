@@ -1,5 +1,4 @@
-																																																																																																																																																																																																																																																																																																																																																																																																																																							package model;
-
+package model;
 import javax.persistence.*;
 
 import org.hibernate.annotations.ForeignKey;
