@@ -306,6 +306,7 @@ public class FesBes1 implements IFesBes1 {
 		Matt matt = new Matt();
 		MattData mattData = new MattData(entity.getName(), entity.getnDays(), entity.getStartDate(), 
 					entity.getStartHour(), entity.getEndHour(), entity.getTimeSlot(), entity.getPassword());
+		mattData.setMattId(entity.getMatt_id());							//additional mattId to mattDate
 		//populating HashMap<String, List<String>[]> sncalendars
 		List<SnCalendarsEntity> snCalendarsEntities= entity.getSncalendars(); //getting list of SnCalendars
 		if(snCalendarsEntities != null && !snCalendarsEntities.isEmpty()){
