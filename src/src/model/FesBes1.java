@@ -17,7 +17,7 @@ public class FesBes1 implements IFesBes1 {
 	static final int MIN_PER_HOUR=60;
 	
 	//@PersistenceContext(unitName = "springHibernate", type = PersistenceContextType.EXTENDED)
-	@PersistenceContext
+	@PersistenceContext(type=PersistenceContextType.EXTENDED)
 	EntityManager em;
 
 	@Autowired
