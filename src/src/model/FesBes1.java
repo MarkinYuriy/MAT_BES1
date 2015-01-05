@@ -215,18 +215,50 @@ public class FesBes1 implements IFesBes1 {
 			else {
 		//saving to DB if newMatt name unique for the user
 				
-			//creating MattInfoEntity
-				MattData data = mattNew.getData();
-				MattInfoEntity mattInfo = new MattInfoEntity(data.getName(), data.getPassword(), 
-						data.getnDays(), data.getStartDate(), data.getStartHour(), 
-						data.getEndHour(), data.getTimeSlot(), prs);
-		//creating List<MattSlots> to save slots to DB
-				mattInfo.setSlots(createListOfMattSlots(mattNew, mattInfo));
-				em.persist(mattInfo);
-				result=mattInfo.getMatt_id();
+				//creating MattInfoEntity
+					MattData data = mattNew.getData();
+					MattInfoEntity mattInfo = new MattInfoEntity(data.getName(), data.getPassword(), 
+							data.getnDays(), data.getStartDate(), data.getStartHour(), 
+							data.getEndHour(), data.getTimeSlot(), prs);
+				//creating List<MattSlots> to save slots to DB
+					mattInfo.setSlots(createListOfMattSlots(mattNew, mattInfo));
+					em.persist(mattInfo);
+					result=mattInfo.getMatt_id();
+					//set snCalendars 
+					LinkedList<SnCalendarsEntity> snCalendars = new LinkedList<>();
+					//checking if SN [] to download is not null
+					String [] snDownload = mattNew.getData().getDownloadSN();
+					if(snDownload != null && snDownload[0] != null){
+						//passing through array of SNs and getting all calendar names for each SN
+						for(int i=0; i<snDownload.length; i++){
+							List<String> downloadCalendarName = mattNew.getData().getDownloadCalendars(snDownload[i]);
+							//getting SocialNetworkEntity instance from DB
+							SocialNetworkEntity snEntity = getSNInstanceFromDB(snDownload[i]);
+							//creating separate SnCalendarsEntity for each Calendar.
+							//Add the entity to Calendars to Download list
+							for(String calendName: downloadCalendarName)
+								snCalendars.add(new SnCalendarsEntity(mattInfo, snEntity, 
+										SnCalendarsEntity.DOWNLOAD, calendName));
+						}
+					}
+					//checking if SN [] to upload is not null
+					String [] snUpload = mattNew.getData().getUploadSN();
+					if (snUpload != null && snUpload[0] != null){
+						//passing through array of SNs and getting all calendar names for each SN
+						for(int i=0; i<snUpload.length; i++){
+							List<String> uploadCalendarName = mattNew.getData().getUploadCalendars(snUpload[i]);
+							//getting SocialNetworkEntity instance from DB
+							SocialNetworkEntity snEntity = getSNInstanceFromDB(snUpload[i]);
+							//creating separate SnCalendarsEntity for each Calendar.
+							//Add the entity to Calendars to Download list
+							for(String calendName: uploadCalendarName)
+								snCalendars.add(new SnCalendarsEntity(mattInfo, snEntity, 
+										SnCalendarsEntity.UPLOAD, calendName));
+						}
+					}
+					mattInfo.setSncalendars(snCalendars); //setting new snCalendar list
 			}
 		}
-		
 		return result;
 	}
 	
