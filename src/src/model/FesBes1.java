@@ -480,12 +480,15 @@ public class FesBes1 implements IFesBes1 {
 	    if (noteList != null && !noteList.isEmpty())
 	    for(NotificationEntity ne:noteList){
 	    	Notification notif = new Notification();
+	    	
 	    	notif.mattId = ne.getMattInfo().getMatt_id();
 	    	notif.mattName = ne.getMattInfo().getName();
 	    	PersonEntity person=ne.getMattInfo().getPersonEntity();
-	    	if(person != null)
+	    	if(person != null){
 	    		notif.nameOfUser=person.getName();//or username??
-	    	notif.userEmail=ne.getGuest_email();
+	    		notif.userEmail=person.getEmail();
+	    	}
+	    	
 	    																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																								
 	    	rt.add(notif);
 	   	   }
