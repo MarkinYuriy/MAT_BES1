@@ -625,8 +625,9 @@ public class FesBes1 implements IFesBes1 {
 
 		@Override
 		public String[] getGuests(int mattId) {
-			MattInfoEntity entity = em.find(MattInfoEntity.class, mattId); 			//looking for mattEntity by ID
-			List<NotificationEntity> nf = entity.getNotifications();
+			Query query = em.createQuery("select e from NotificationEntity e join e.mattInfo m where m.matt_id = :matt_id");
+			query.setParameter("matt_id", mattId);
+			List<NotificationEntity> nf = query.getResultList();
 			if(nf!=null){
 				String[] result = new String[nf.size()];
 				int ind = 0;
